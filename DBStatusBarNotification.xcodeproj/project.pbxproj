@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		431231E01D68D734006281AC /* DBStatusBarNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DB1D68D734006281AC /* DBStatusBarNotification.swift */; };
+		431231E11D68D734006281AC /* DBStatusBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DC1D68D734006281AC /* DBStatusBarStyle.swift */; };
+		431231E21D68D734006281AC /* DBStatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DD1D68D734006281AC /* DBStatusBarView.swift */; };
+		431231E31D68D734006281AC /* JDStatusBarNotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */; };
+		431231E41D68D734006281AC /* UIApplication+mainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */; };
 		43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */; };
 		43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF531D67F9DC00C10D6B /* ViewController.swift */; };
 		43E2FF571D67F9DC00C10D6B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43E2FF551D67F9DC00C10D6B /* Main.storyboard */; };
@@ -34,6 +39,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		431231DB1D68D734006281AC /* DBStatusBarNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBStatusBarNotification.swift; sourceTree = "<group>"; };
+		431231DC1D68D734006281AC /* DBStatusBarStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBStatusBarStyle.swift; sourceTree = "<group>"; };
+		431231DD1D68D734006281AC /* DBStatusBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBStatusBarView.swift; sourceTree = "<group>"; };
+		431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JDStatusBarNotificationViewController.swift; sourceTree = "<group>"; };
+		431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIApplication+mainWindow.swift"; sourceTree = "<group>"; };
 		43E2FF4E1D67F9DC00C10D6B /* DBStatusBarNotification.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DBStatusBarNotification.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		43E2FF531D67F9DC00C10D6B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +84,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		431231DA1D68D734006281AC /* JDStatusBarNotification */ = {
+			isa = PBXGroup;
+			children = (
+				431231DB1D68D734006281AC /* DBStatusBarNotification.swift */,
+				431231DC1D68D734006281AC /* DBStatusBarStyle.swift */,
+				431231DD1D68D734006281AC /* DBStatusBarView.swift */,
+				431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */,
+				431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */,
+			);
+			path = JDStatusBarNotification;
+			sourceTree = "<group>";
+		};
 		43E2FF451D67F9DC00C10D6B = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +119,7 @@
 		43E2FF501D67F9DC00C10D6B /* DBStatusBarNotification */ = {
 			isa = PBXGroup;
 			children = (
+				431231DA1D68D734006281AC /* JDStatusBarNotification */,
 				43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */,
 				43E2FF531D67F9DC00C10D6B /* ViewController.swift */,
 				43E2FF551D67F9DC00C10D6B /* Main.storyboard */,
@@ -259,8 +282,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				431231E31D68D734006281AC /* JDStatusBarNotificationViewController.swift in Sources */,
 				43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */,
 				43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */,
+				431231E01D68D734006281AC /* DBStatusBarNotification.swift in Sources */,
+				431231E21D68D734006281AC /* DBStatusBarView.swift in Sources */,
+				431231E11D68D734006281AC /* DBStatusBarStyle.swift in Sources */,
+				431231E41D68D734006281AC /* UIApplication+mainWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,6 +515,7 @@
 				43E2FF781D67F9DC00C10D6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		43E2FF791D67F9DC00C10D6B /* Build configuration list for PBXNativeTarget "DBStatusBarNotificationTests" */ = {
 			isa = XCConfigurationList;
@@ -495,6 +524,7 @@
 				43E2FF7B1D67F9DC00C10D6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		43E2FF7C1D67F9DC00C10D6B /* Build configuration list for PBXNativeTarget "DBStatusBarNotificationUITests" */ = {
 			isa = XCConfigurationList;
@@ -503,6 +533,7 @@
 				43E2FF7E1D67F9DC00C10D6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
