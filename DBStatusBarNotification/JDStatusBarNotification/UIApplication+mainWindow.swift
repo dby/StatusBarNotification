@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 extension UIApplication {
-    func mainApplicationWindowIgnoringWindow(ignoringWindow: UIWindow) -> UIWindow? {
+    func mainApplicationWindowIgnoringWindow(ignoringWindow: UIWindow?) -> UIWindow? {
         for window: UIWindow in UIApplication.sharedApplication().windows {
             if !window.hidden && windows != ignoringWindow {
                 return window

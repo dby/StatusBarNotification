@@ -87,11 +87,11 @@
 		431231DA1D68D734006281AC /* JDStatusBarNotification */ = {
 			isa = PBXGroup;
 			children = (
-				431231DB1D68D734006281AC /* DBStatusBarNotification.swift */,
 				431231DC1D68D734006281AC /* DBStatusBarStyle.swift */,
 				431231DD1D68D734006281AC /* DBStatusBarView.swift */,
-				431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */,
+				431231DB1D68D734006281AC /* DBStatusBarNotification.swift */,
 				431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */,
+				431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */,
 			);
 			path = JDStatusBarNotification;
 			sourceTree = "<group>";
@@ -216,7 +216,7 @@
 				TargetAttributes = {
 					43E2FF4D1D67F9DC00C10D6B = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = 3G3JV73KM2;
+						DevelopmentTeam = 48E3LB8PD7;
 					};
 					43E2FF611D67F9DC00C10D6B = {
 						CreatedOnToolsVersion = 7.3;
@@ -432,6 +432,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = DBStatusBarNotification/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = sys.DBStatusBarNotification;
@@ -443,6 +444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = DBStatusBarNotification/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = sys.DBStatusBarNotification;

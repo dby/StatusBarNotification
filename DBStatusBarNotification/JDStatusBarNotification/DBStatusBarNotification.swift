@@ -47,7 +47,10 @@ class DBStatusBarNotification: NSObject {
         self.setupDefaultStyles()
         
         // register for orientation changes
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(willChangeStatusBarFrame), name: UIApplicationWillChangeStatusBarFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self,
+                                                         selector: #selector(willChangeStatusBarFrame),
+                                                         name: UIApplicationWillChangeStatusBarFrameNotification,
+                                                         object: nil)
     }
     
     deinit {
@@ -81,7 +84,7 @@ class DBStatusBarNotification: NSObject {
         if styleName != nil {
             style = self.userStyles[styleName!]
         }
-        if style != nil {
+        if style == nil {
             style = self.defaultStyle
         }
         return self.showWithStatus(status, style: style)
@@ -116,15 +119,15 @@ class DBStatusBarNotification: NSObject {
         let textLabel: UILabel? = self.topBar?.textLabel
         textLabel?.textColor = style?.textColor
         textLabel?.font = style?.font
-        textLabel?.accessibilityLabel = status
         textLabel?.text = status
+        textLabel?.accessibilityLabel = status
         
         if ((style?.textShadow) != nil) {
-            textLabel!.shadowColor = style?.textShadow!.shadowColor as? UIColor
-            textLabel!.shadowOffset = (style?.textShadow?.shadowOffset)!
+            textLabel?.shadowColor  = style?.textShadow?.shadowColor as? UIColor
+            textLabel?.shadowOffset = (style?.textShadow?.shadowOffset)!
          } else {
-            textLabel!.shadowColor = nil
-            textLabel!.shadowOffset = CGSizeZero
+            textLabel?.shadowColor  = nil
+            textLabel?.shadowOffset = CGSizeZero
         }
     
         // reset progress & activity
@@ -177,7 +180,7 @@ class DBStatusBarNotification: NSObject {
             if (self.activeStyle!.animationType == .Fade) {
                 self.topBar?.alpha = 0.0;
             } else {
-                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height);
+                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height)
             }
         }
     
@@ -247,7 +250,7 @@ class DBStatusBarNotification: NSObject {
     }
     
     override func animationDidStop(anim: CAAnimation, finished:Bool) {
-        self.topBar!.transform = CGAffineTransformIdentity
+        self.topBar?.transform = CGAffineTransformIdentity
         self.topBar?.layer.removeAllAnimations()
     }
     
@@ -260,9 +263,9 @@ class DBStatusBarNotification: NSObject {
             }
             
             // trim progress
-            progress = min(1.0, max(0.0,newValue))
+            self.progress = min(1.0, max(0.0,newValue))
             
-            if (progress == 0.0) {
+            if (self.progress == 0.0) {
                 self.progressView?.frame = CGRectZero
                 return;
             }
@@ -271,11 +274,11 @@ class DBStatusBarNotification: NSObject {
             if (self.activeStyle!.progressBarPosition == .Below || self.activeStyle!.progressBarPosition == .NavBar) {
                 self.topBar?.superview?.addSubview(self.progressView!)
             } else {
-                self.topBar?.insertSubview(self.progressView!, belowSubview: (self.topBar?.textLabel)!)
+                self.topBar?.insertSubview(self.progressView!, belowSubview: self.topBar!.textLabel)
             }
             
             // calculate progressView frame
-            var frame: CGRect = self.topBar!.bounds
+            var frame: CGRect   = self.topBar!.bounds
             var height: CGFloat = min(frame.size.height, max(0.5, self.activeStyle!.progressBarHeight))
             if (height == 20.0 && frame.size.height > height) {
                 height = frame.size.height
@@ -352,16 +355,16 @@ class DBStatusBarNotification: NSObject {
     private lazy var topBar: DBStatusBarView? = {
         
         let topBar: DBStatusBarView = DBStatusBarView()
-        self.overlayWindow!.rootViewController!.view.addSubview(topBar)
+        self.overlayWindow?.rootViewController?.view.addSubview(topBar)
         
-        var style: DBStatusBarStyle = self.activeStyle!
+        var style: DBStatusBarStyle? = self.activeStyle
         if self.activeStyle == nil {
             style = self.defaultStyle!
         }
-        if (style.animationType != .Fade) {
-            self.topBar!.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height);
+        if (style!.animationType != .Fade) {
+            self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height);
         } else {
-            self.topBar!.alpha = 0.0;
+            self.topBar?.alpha = 0.0
         }
         return topBar
     }()
@@ -373,9 +376,11 @@ class DBStatusBarNotification: NSObject {
     
     //MARK:-----Rotation-----
     func updateWindowTransform(){
-        let window: UIWindow = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.overlayWindow!)!
-        overlayWindow?.transform = window.transform
-        overlayWindow?.frame = window.frame
+        let window: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.overlayWindow!)
+        if let _ = window {
+            overlayWindow?.transform = window!.transform
+            overlayWindow?.frame = window!.frame
+        }
     }
     
     func updateTopBarFrameWithStatusBarFrame(rect: CGRect) {
@@ -385,7 +390,7 @@ class DBStatusBarNotification: NSObject {
     
         // on ios7 fix position, if statusBar has double height
         var yPos: CGFloat = 0
-        if /*(UIDevice.currentDevice().systemVersion as String).toInt() >= 7.0 &&*/ height > 20.0 {
+        if Double(UIDevice.currentDevice().systemVersion) >= 7.0 && height > 20.0 {
             yPos = -height/2.0
         }
         

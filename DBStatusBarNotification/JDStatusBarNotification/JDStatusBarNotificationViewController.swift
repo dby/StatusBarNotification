@@ -10,13 +10,9 @@ import UIKit
 
 class JDStatusBarNotificationViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
     // rotation
     func mainController() -> UIViewController? {
-        let mainAppWindow: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.view.window!)
+        let mainAppWindow: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.view.window)
         var topController: UIViewController? = mainAppWindow?.rootViewController
         
         if mainAppWindow != nil && topController != nil {
@@ -27,12 +23,10 @@ class JDStatusBarNotificationViewController: UIViewController {
         return topController
     }
     
-    
 //    override func shouldAutorotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation) -> Bool {
 //        return self.mainController()!.shouldAutorotateToInterfaceOrientation(toInterfaceOrientation)
 //    }
     
-//
 //    - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
 //    return [[self mainController] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 //    }
