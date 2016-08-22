@@ -18,6 +18,9 @@ class ViewController: UIViewController {
     }
     
     //MARK:-----Setter Getter-----
+    private lazy var progress: CGFloat = 0.0
+    private lazy var timer: NSTimer? = nil
+    
     private lazy var tableView: UITableView = {
         let tableView: UITableView = UITableView(frame: self.view.frame)
         tableView.delegate   = self
@@ -43,6 +46,17 @@ class ViewController: UIViewController {
         
         return [section1, section2, section3]
     }()
+    
+    //MARK:-----Action-----
+    @objc private func timerAction() {
+        self.progress += 0.1
+        DBStatusBarNotification.showProgress(self.progress)
+        
+        if self.progress > 1.0 {
+            self.timer?.invalidate()
+            self.timer = nil
+        }
+    }
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -69,7 +83,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             if indexPath.row == 0 {
                 DBStatusBarNotification.showWithStatus("0 0")
             } else if indexPath.row == 1 {
-                DBStatusBarNotification.showProgress(0.5)
+                self.timer = NSTimer.scheduledTimerWithTimeInterval(0.5,
+                                                                    target: self,
+                                                                    selector: #selector(timerAction),
+                                                                    userInfo: nil,
+                                                                    repeats: true)
+                NSRunLoop.currentRunLoop().addTimer(self.timer!, forMode: NSRunLoopCommonModes)
             } else if indexPath.row == 2 {
                 
             } else if indexPath.row == 3 {

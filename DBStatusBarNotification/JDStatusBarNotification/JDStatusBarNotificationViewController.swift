@@ -11,8 +11,8 @@ import UIKit
 class JDStatusBarNotificationViewController: UIViewController {
 
     // rotation
-    func mainController() -> UIViewController? {
-        debugPrint("-mainController")
+    private lazy var mainController: UIViewController? = {
+        debugPrint("property-mainController")
         let mainAppWindow: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.view.window)
         var topController: UIViewController? = mainAppWindow?.rootViewController
         
@@ -22,7 +22,7 @@ class JDStatusBarNotificationViewController: UIViewController {
             }
         }
         return topController
-    }
+    }()
     
 //    override func shouldAutorotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation) -> Bool {
 //        return self.mainController()!.shouldAutorotateToInterfaceOrientation(toInterfaceOrientation)
@@ -34,7 +34,7 @@ class JDStatusBarNotificationViewController: UIViewController {
     
     override func shouldAutorotate() -> Bool {
         debugPrint("-shouldAutorotate")
-        return (self.mainController()?.shouldAutorotate())!
+        return (self.mainController?.shouldAutorotate())!
     }
     
 //    #if __IPHONE_OS_VERSION_MAX_ALLOWED < 90000
@@ -47,7 +47,7 @@ class JDStatusBarNotificationViewController: UIViewController {
     
     override func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
         debugPrint("-preferredInterfaceOrientationForPresentation")
-        return (self.mainController()?.preferredInterfaceOrientationForPresentation())!
+        return (self.mainController?.preferredInterfaceOrientationForPresentation())!
     }
     
     // statusbar
@@ -68,7 +68,7 @@ class JDStatusBarNotificationViewController: UIViewController {
     override func preferredStatusBarStyle() -> UIStatusBarStyle {
         debugPrint("-preferredStatusBarStyle")
         if JDUIViewControllerBasedStatusBarAppearanceEnabled() {
-            return (self.mainController()?.preferredStatusBarStyle())!
+            return (self.mainController?.preferredStatusBarStyle())!
         }
         return UIApplication.sharedApplication().statusBarStyle
     }
@@ -81,7 +81,7 @@ class JDStatusBarNotificationViewController: UIViewController {
     override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
         debugPrint("-preferredStatusBarUpdateAnimation")
         if JDUIViewControllerBasedStatusBarAppearanceEnabled() {
-            return (self.mainController()?.preferredStatusBarUpdateAnimation())!
+            return (self.mainController?.preferredStatusBarUpdateAnimation())!
         }
         return super.preferredStatusBarUpdateAnimation()
     }

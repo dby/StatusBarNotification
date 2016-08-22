@@ -65,13 +65,13 @@ class DBStatusBarStyle: NSObject, NSCopying {
     func copyWithZone(zone: NSZone) -> AnyObject {
         debugPrint("copyWithZone")
         let style: DBStatusBarStyle = self.copyWithZone(zone) as! DBStatusBarStyle
-        style.barColor = self.barColor
+        style.barColor  = self.barColor
         style.textColor = self.textColor
         style.textShadow = self.textShadow
         style.font = self.font
         style.textVerticalPositionAdjustment = self.textVerticalPositionAdjustment
         style.animationType = self.animationType
-        style.progressBarColor = self.progressBarColor
+        style.progressBarColor  = self.progressBarColor
         style.progressBarHeight = self.progressBarHeight
         style.progressBarPosition = self.progressBarPosition
         return style

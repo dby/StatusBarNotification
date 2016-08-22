@@ -17,11 +17,11 @@ class DBStatusBarNotification: NSObject {
 
     /**
      *  A block that is used to define the appearance of a notification.
-     *  A JDStatusBarStyle instance defines the notification appeareance.
+     *  A DBStatusBarStyle instance defines the notification appeareance.
      *
-     *  @param style The current default JDStatusBarStyle instance.
+     *  @param style The current default DBStatusBarStyle instance.
      *
-     *  @return The modified JDStatusBarStyle instance.
+     *  @return The modified DBStatusBarStyle instance.
      */
     typealias DBPrepareStyleBlock = (style: DBStatusBarStyle?) -> DBStatusBarStyle
     
@@ -31,18 +31,14 @@ class DBStatusBarNotification: NSObject {
     private var defaultStyle: DBStatusBarStyle?
     private var userStyles: [String : DBStatusBarStyle] = [:]
     
+    private static let singleShareInstance: DBStatusBarNotification = DBStatusBarNotification()
     class func shareInstance() -> DBStatusBarNotification {
         debugPrint("+shareInstance")
-        var once: dispatch_once_t = 0
-        var sharedInstance: DBStatusBarNotification?
-        dispatch_once(&once) {
-            sharedInstance = DBStatusBarNotification()
-        }
-        return sharedInstance!
+        return singleShareInstance
     }
     
     //MARK:-----Implementation-----
-    override init() {
+    private override init() {
         debugPrint("-init")
         super.init()
         // set defaults
@@ -72,7 +68,6 @@ class DBStatusBarNotification: NSObject {
     }
     
     func addStyleNamed(identifier: String?, prepareBlock: DBPrepareStyleBlock?) -> String {
-        
         debugPrint("-addStyleNamed")
         assert(identifier != nil, "No identifier provided")
         assert(prepareBlock != nil, "No prepareBlock provided")
@@ -510,7 +505,6 @@ extension DBStatusBarNotification {
     }
     
     //MARK:-----Dismissal-----
-    
     /**
      *  Calls dismissAnimated: with animated set to YES
      */
@@ -542,7 +536,6 @@ extension DBStatusBarNotification {
     }
     
     //Mark:-----Styles-----
-    
     /**
      *  This changes the default style, which is always used
      *  when a method without styleName is used for presentation, or
@@ -580,7 +573,6 @@ extension DBStatusBarNotification {
     }
     
     //Mark:-----progress & activity-----
-    
     /**
      *  Show the progress below the label.
      *
@@ -603,7 +595,6 @@ extension DBStatusBarNotification {
     }
     
     //MARK:-----state-----
-    
     /**
      *  This method tests, if a notification is currently displayed.
      *
