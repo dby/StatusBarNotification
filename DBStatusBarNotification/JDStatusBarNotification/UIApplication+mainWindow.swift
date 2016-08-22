@@ -11,6 +11,7 @@ import UIKit
 
 extension UIApplication {
     func mainApplicationWindowIgnoringWindow(ignoringWindow: UIWindow?) -> UIWindow? {
+        debugPrint("extense+mainApplicationWindowIgnoringWindow")
         for window: UIWindow in UIApplication.sharedApplication().windows {
             if !window.hidden && windows != ignoringWindow {
                 return window

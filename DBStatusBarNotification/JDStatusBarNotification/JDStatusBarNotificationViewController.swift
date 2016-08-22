@@ -12,6 +12,7 @@ class JDStatusBarNotificationViewController: UIViewController {
 
     // rotation
     func mainController() -> UIViewController? {
+        debugPrint("-mainController")
         let mainAppWindow: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.view.window)
         var topController: UIViewController? = mainAppWindow?.rootViewController
         
@@ -32,6 +33,7 @@ class JDStatusBarNotificationViewController: UIViewController {
 //    }
     
     override func shouldAutorotate() -> Bool {
+        debugPrint("-shouldAutorotate")
         return (self.mainController()?.shouldAutorotate())!
     }
     
@@ -44,22 +46,27 @@ class JDStatusBarNotificationViewController: UIViewController {
 //    }
     
     override func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
+        debugPrint("-preferredInterfaceOrientationForPresentation")
         return (self.mainController()?.preferredInterfaceOrientationForPresentation())!
     }
     
     // statusbar
     func JDUIViewControllerBasedStatusBarAppearanceEnabled() -> Bool {
+        debugPrint("-JDUIViewControllerBasedStatusBarAppearanceEnabled")
         var enabled: Bool = false
         var onceToken: dispatch_once_t = 0
     
         dispatch_once(&onceToken) {
-            enabled = (NSBundle.mainBundle().infoDictionary!["UIViewControllerBasedStatusBarAppearance"]?.boolValue)!
+            if let info: AnyObject = NSBundle.mainBundle().infoDictionary!["UIViewControllerBasedStatusBarAppearance"] {
+                enabled = info.boolValue
+            }
         }
     
         return enabled;
     }
     
     override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        debugPrint("-preferredStatusBarStyle")
         if JDUIViewControllerBasedStatusBarAppearanceEnabled() {
             return (self.mainController()?.preferredStatusBarStyle())!
         }
@@ -67,10 +74,12 @@ class JDStatusBarNotificationViewController: UIViewController {
     }
     
     override func prefersStatusBarHidden() -> Bool {
+        debugPrint("-prefersStatusBarHidden")
         return false
     }
     
     override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
+        debugPrint("-preferredStatusBarUpdateAnimation")
         if JDUIViewControllerBasedStatusBarAppearanceEnabled() {
             return (self.mainController()?.preferredStatusBarUpdateAnimation())!
         }

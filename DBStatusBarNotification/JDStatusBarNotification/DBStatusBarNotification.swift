@@ -32,6 +32,7 @@ class DBStatusBarNotification: NSObject {
     private var userStyles: [String : DBStatusBarStyle] = [:]
     
     class func shareInstance() -> DBStatusBarNotification {
+        debugPrint("+shareInstance")
         var once: dispatch_once_t = 0
         var sharedInstance: DBStatusBarNotification?
         dispatch_once(&once) {
@@ -42,6 +43,7 @@ class DBStatusBarNotification: NSObject {
     
     //MARK:-----Implementation-----
     override init() {
+        debugPrint("-init")
         super.init()
         // set defaults
         self.setupDefaultStyles()
@@ -54,12 +56,14 @@ class DBStatusBarNotification: NSObject {
     }
     
     deinit {
+        debugPrint("-deinit")
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     //MARK:-----Custom Styles-----
     func setupDefaultStyles()
     {
+        debugPrint("-setupDefaultStyles")
         self.defaultStyle = DBStatusBarStyle.defaultStyleWithName(DBStatusBarStyleDefault)
     
         DBStatusBarStyle.allDefaultStyleIdentifier().forEach { (styleName: String) in
@@ -69,6 +73,7 @@ class DBStatusBarNotification: NSObject {
     
     func addStyleNamed(identifier: String?, prepareBlock: DBPrepareStyleBlock?) -> String {
         
+        debugPrint("-addStyleNamed")
         assert(identifier != nil, "No identifier provided")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
@@ -80,6 +85,7 @@ class DBStatusBarNotification: NSObject {
     
     //MARK:-----Presentation-----
     func showWithStatus(status: String?, styleName: String?) -> UIView? {
+        debugPrint("-showWithStatus:status:styleName")
         var style: DBStatusBarStyle?
         if styleName != nil {
             style = self.userStyles[styleName!]
@@ -91,6 +97,7 @@ class DBStatusBarNotification: NSObject {
     }
     
     func showWithStatus(status: String?, style: DBStatusBarStyle?) -> UIView? {
+        debugPrint("-showWithStatus:status:style")
         // first, check if status bar is visible at all
         if UIApplication.sharedApplication().statusBarHidden {
             return nil
@@ -106,6 +113,10 @@ class DBStatusBarNotification: NSObject {
                 self.topBar?.transform = CGAffineTransformMakeTranslation(0, -(self.topBar!.frame.size.height))
             }
         }
+        
+        self.updateWindowTransform()
+        self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
+        
         // cancel previous dismissing & remove animations
         NSRunLoop.currentRunLoop().cancelPerformSelector(#selector(dismiss), target: self, argument: nil)
         self.topBar?.layer.removeAllAnimations()
@@ -148,8 +159,8 @@ class DBStatusBarNotification: NSObject {
     }
     
     //MARK:-----Dismissal-----
-    func setDismissTimerWithInterval(interval: NSTimeInterval)
-    {
+    func setDismissTimerWithInterval(interval: NSTimeInterval) {
+        debugPrint("-setDismissTimerWithInterval")
         self.dismissTimer?.invalidate()
         self.dismissTimer = NSTimer(fireDate: NSDate(timeIntervalSinceReferenceDate: interval),
                                     interval: 0,
@@ -163,10 +174,12 @@ class DBStatusBarNotification: NSObject {
     }
     
     func dismiss(timer: NSTimer) {
+        debugPrint("-dismiss")
         self.dismissAnimated(true)
     }
     
     func dismissAnimated(animated: Bool) {
+        debugPrint("-dismissAnimated")
         self.dismissTimer?.invalidate()
         self.dismissTimer = nil;
     
@@ -201,8 +214,8 @@ class DBStatusBarNotification: NSObject {
     }
     
     //MARK:-----Bounce Animation-----
-    func animateInWithBounceAnimation()
-    {
+    func animateInWithBounceAnimation() {
+        debugPrint("-animateInWithBounceAnimation")
         //don't animate in, if topBar is already fully visible
         if (self.topBar?.frame.origin.y >= 0) {
             return
@@ -250,6 +263,7 @@ class DBStatusBarNotification: NSObject {
     }
     
     override func animationDidStop(anim: CAAnimation, finished:Bool) {
+        debugPrint("-animationDidStop")
         self.topBar?.transform = CGAffineTransformIdentity
         self.topBar?.layer.removeAllAnimations()
     }
@@ -257,7 +271,7 @@ class DBStatusBarNotification: NSObject {
     //MARK:-----Progress & Activity-----
     internal var progress: CGFloat = 0.0 {
         willSet {
-            
+            debugPrint("property-progress")
             if self.topBar == nil {
                 return
             }
@@ -271,7 +285,7 @@ class DBStatusBarNotification: NSObject {
             }
             
             // update superview
-            if (self.activeStyle!.progressBarPosition == .Below || self.activeStyle!.progressBarPosition == .NavBar) {
+            if (self.activeStyle?.progressBarPosition == .Below || self.activeStyle?.progressBarPosition == .NavBar) {
                 self.topBar?.superview?.addSubview(self.progressView!)
             } else {
                 self.topBar?.insertSubview(self.progressView!, belowSubview: self.topBar!.textLabel)
@@ -279,7 +293,10 @@ class DBStatusBarNotification: NSObject {
             
             // calculate progressView frame
             var frame: CGRect   = self.topBar!.bounds
-            var height: CGFloat = min(frame.size.height, max(0.5, self.activeStyle!.progressBarHeight))
+            var height: CGFloat = min(frame.size.height, 0.5)
+            if let _ = self.activeStyle {
+                height = min(frame.size.height, max(0.5, self.activeStyle!.progressBarHeight))
+            }
             if (height == 20.0 && frame.size.height > height) {
                 height = frame.size.height
             }
@@ -316,6 +333,7 @@ class DBStatusBarNotification: NSObject {
     }
     
     func showActivityIndicator(show:Bool, style:UIActivityIndicatorViewStyle) {
+        debugPrint("-showActivityIndicator")
         if (self.topBar == nil){
             return;
         }
@@ -330,11 +348,13 @@ class DBStatusBarNotification: NSObject {
     
     //MARK:-----State-----
     func isVisible() -> Bool {
+        debugPrint("-isVisible")
         return (self.topBar != nil)
     }
     
     //MARK:-----Setter Getter-----
     private lazy var overlayWindow: UIWindow? = {
+        debugPrint("property-overlayWindow")
         let overlayWindow: UIWindow = UIWindow.init(frame: UIScreen.mainScreen().bounds)
 //        overlayWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
         overlayWindow.backgroundColor = UIColor.clearColor()
@@ -347,13 +367,13 @@ class DBStatusBarNotification: NSObject {
 //            overlayWindow.rootViewController!.wantsFullScreenLayout = true
 //        }
         
-        self.updateWindowTransform()
-        self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
+//        self.updateWindowTransform()
+//        self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
         return overlayWindow
     }()
     
     private lazy var topBar: DBStatusBarView? = {
-        
+        debugPrint("property-topBar")
         let topBar: DBStatusBarView = DBStatusBarView()
         self.overlayWindow?.rootViewController?.view.addSubview(topBar)
         
@@ -362,7 +382,7 @@ class DBStatusBarNotification: NSObject {
             style = self.defaultStyle!
         }
         if (style!.animationType != .Fade) {
-            self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height);
+            topBar.transform = CGAffineTransformMakeTranslation(0, -topBar.frame.size.height);
         } else {
             self.topBar?.alpha = 0.0
         }
@@ -370,21 +390,23 @@ class DBStatusBarNotification: NSObject {
     }()
     
     private lazy var progressView: UIView? = {
+        debugPrint("property-progressView")
         let progressView = UIView()
         return progressView
     }()
     
     //MARK:-----Rotation-----
     func updateWindowTransform(){
+        debugPrint("-updateWindowTransform")
         let window: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.overlayWindow!)
         if let _ = window {
-            overlayWindow?.transform = window!.transform
-            overlayWindow?.frame = window!.frame
+            self.overlayWindow?.transform = window!.transform
+            self.overlayWindow?.frame = window!.frame
         }
     }
     
     func updateTopBarFrameWithStatusBarFrame(rect: CGRect) {
-        
+        debugPrint("-updateTopBarFrameWithStatusBarFrame")
         let width: CGFloat = max(rect.size.width, rect.size.height)
         let height: CGFloat = min(rect.size.width, rect.size.height)
     
@@ -397,8 +419,8 @@ class DBStatusBarNotification: NSObject {
         self.topBar!.frame = CGRectMake(0, yPos, width, height)
     }
     
-    func willChangeStatusBarFrame(notification: NSNotification)
-    {
+    func willChangeStatusBarFrame(notification: NSNotification) {
+        debugPrint("-willChangeStatusBarFrame")
         let newBarFrame: CGRect = (notification.userInfo![UIApplicationStatusBarFrameUserInfoKey]?.CGRectValue())!
         let duration: NSTimeInterval = UIApplication.sharedApplication().statusBarOrientationAnimationDuration
     
@@ -430,6 +452,7 @@ extension DBStatusBarNotification {
      *  @return The presented notification view for further customization
      */
     class func showWithStatus(status: String) -> UIView? {
+        debugPrint("+showWithStatus:status")
         return self.shareInstance().showWithStatus(status, styleName: nil)
     }
     
@@ -445,6 +468,7 @@ extension DBStatusBarNotification {
      *  @return The presented notification view for further customization
      */
     class func showWithStatus(status: String, styleName: String) -> UIView? {
+        debugPrint("+showWithStatus:status:styleName")
         return self.shareInstance().showWithStatus(status, styleName: styleName)
     }
     
@@ -459,6 +483,7 @@ extension DBStatusBarNotification {
      *  @return The presented notification view for further customization
      */
     class func showWithStatus(status: String, timeInterval: NSTimeInterval) -> UIView? {
+        debugPrint("+showWithStatus:status:timeInterval")
         let view: UIView? = self.shareInstance().showWithStatus(status, style: nil)
         self.dismissAfter(timeInterval)
         return view
@@ -478,6 +503,7 @@ extension DBStatusBarNotification {
      *  @return The presented notification view for further customization
      */
     class func showWithStatus(status: String, timeInterval: NSTimeInterval, styleName: String) -> UIView? {
+        debugPrint("+showWithStatus:status:timeInterval:styleName")
         let view: UIView? = self.shareInstance().showWithStatus(status, styleName: styleName)
         self.dismissAfter(timeInterval)
         return view
@@ -489,6 +515,7 @@ extension DBStatusBarNotification {
      *  Calls dismissAnimated: with animated set to YES
      */
     class func dismiss() {
+        debugPrint("+dismiss")
         self.dismissAnimated(true)
     }
     
@@ -499,6 +526,7 @@ extension DBStatusBarNotification {
      *  for presentation will also be used for the dismissal.
      */
     class func dismissAnimated(animated: Bool) {
+        debugPrint("+dismissAnimated")
         DBStatusBarNotification.shareInstance().dismissAnimated(true)
     }
     
@@ -509,6 +537,7 @@ extension DBStatusBarNotification {
      *  @param delay The delay, how long the notification should stay visible
      */
     class func dismissAfter(delay: NSTimeInterval) {
+        debugPrint("+dismissAfter")
         DBStatusBarNotification.shareInstance().setDismissTimerWithInterval(delay)
     }
     
@@ -525,6 +554,7 @@ extension DBStatusBarNotification {
      */
     class func setDefaultStyle(prepareBlock: DBPrepareStyleBlock?) {
         
+        debugPrint("+setDefaultStyle")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
         let style: DBStatusBarStyle? = self.shareInstance().defaultStyle?.copy() as? DBStatusBarStyle
@@ -545,6 +575,7 @@ extension DBStatusBarNotification {
      *  be directly used as styleName parameter.
      */
     class func addStyleNamed(identifier: String, prepareBlock:DBPrepareStyleBlock) -> String {
+        debugPrint("+addStyleNamed")
         return DBStatusBarNotification.shareInstance().addStyleNamed(identifier, prepareBlock:prepareBlock)
     }
     
@@ -556,6 +587,7 @@ extension DBStatusBarNotification {
      *  @param progress Relative progress from 0.0 to 1.0
      */
     class func showProgress(progress: CGFloat) {
+        debugPrint("+showProgress")
         return DBStatusBarNotification.shareInstance().progress = progress
     }
     
@@ -566,6 +598,7 @@ extension DBStatusBarNotification {
      *  @param style Sets the style of the activity indicator
      */
     class func showActivityIndicator(show: Bool, style:UIActivityIndicatorViewStyle) {
+        debugPrint("+showActivityIndicator")
         return DBStatusBarNotification.shareInstance().showActivityIndicator(show, style: style)
     }
     
@@ -577,6 +610,7 @@ extension DBStatusBarNotification {
      *  @return YES, if a notification is currently displayed. Otherwise NO.
      */
     class func isVisible() -> Bool {
+        debugPrint("+isVisible")
         return DBStatusBarNotification.shareInstance().isVisible()
     }
 }

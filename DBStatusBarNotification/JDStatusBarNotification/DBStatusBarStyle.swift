@@ -63,7 +63,7 @@ class DBStatusBarStyle: NSObject, NSCopying {
     internal var progressBarPosition: DBStatusBarProgressBarPosition = .Bottom
     
     func copyWithZone(zone: NSZone) -> AnyObject {
-        
+        debugPrint("copyWithZone")
         let style: DBStatusBarStyle = self.copyWithZone(zone) as! DBStatusBarStyle
         style.barColor = self.barColor
         style.textColor = self.textColor
@@ -78,11 +78,13 @@ class DBStatusBarStyle: NSObject, NSCopying {
     }
     
     class func allDefaultStyleIdentifier() -> [String] {
+        debugPrint("+allDefaultStyleIdentifier")
         return [DBStatusBarStyleError, DBStatusBarStyleWarning, DBStatusBarStyleSuccess, DBStatusBarStyleMatrix, DBStatusBarStyleDark]
     }
     
     class func defaultStyleWithName(styleName: String) -> DBStatusBarStyle?
     {
+        debugPrint("+defaultStyleWithName")
         // setup default style
         let style: DBStatusBarStyle = DBStatusBarStyle()
         style.barColor = UIColor.whiteColor()

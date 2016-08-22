@@ -12,6 +12,7 @@
 		431231E21D68D734006281AC /* DBStatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DD1D68D734006281AC /* DBStatusBarView.swift */; };
 		431231E31D68D734006281AC /* JDStatusBarNotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */; };
 		431231E41D68D734006281AC /* UIApplication+mainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */; };
+		4312D0581D69F30100D6D2F1 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4312D0571D69F30100D6D2F1 /* AppConfig.swift */; };
 		43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */; };
 		43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF531D67F9DC00C10D6B /* ViewController.swift */; };
 		43E2FF571D67F9DC00C10D6B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43E2FF551D67F9DC00C10D6B /* Main.storyboard */; };
@@ -44,6 +45,7 @@
 		431231DD1D68D734006281AC /* DBStatusBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBStatusBarView.swift; sourceTree = "<group>"; };
 		431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JDStatusBarNotificationViewController.swift; sourceTree = "<group>"; };
 		431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIApplication+mainWindow.swift"; sourceTree = "<group>"; };
+		4312D0571D69F30100D6D2F1 /* AppConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		43E2FF4E1D67F9DC00C10D6B /* DBStatusBarNotification.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DBStatusBarNotification.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		43E2FF531D67F9DC00C10D6B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				431231DB1D68D734006281AC /* DBStatusBarNotification.swift */,
 				431231DF1D68D734006281AC /* UIApplication+mainWindow.swift */,
 				431231DE1D68D734006281AC /* JDStatusBarNotificationViewController.swift */,
+				4312D0571D69F30100D6D2F1 /* AppConfig.swift */,
 			);
 			path = JDStatusBarNotification;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				431231E31D68D734006281AC /* JDStatusBarNotificationViewController.swift in Sources */,
+				4312D0581D69F30100D6D2F1 /* AppConfig.swift in Sources */,
 				43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */,
 				43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */,
 				431231E01D68D734006281AC /* DBStatusBarNotification.swift in Sources */,

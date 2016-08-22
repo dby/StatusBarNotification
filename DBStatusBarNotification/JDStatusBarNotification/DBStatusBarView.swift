@@ -13,6 +13,7 @@ class DBStatusBarView: UIView {
     //MARK:-----Variales-----
     internal var textVerticalPositionAdjustment: CGFloat = 0.0 {
         willSet {
+            debugPrint("property-textVerticalPositionAdjustment")
             self.textVerticalPositionAdjustment = newValue
             self.setNeedsLayout()
         }
@@ -21,6 +22,7 @@ class DBStatusBarView: UIView {
     //MARK:-----Layout-----
     override func layoutSubviews() {
         
+        debugPrint("layoutSubviews")
         super.layoutSubviews()
         // label
         self.textLabel.frame = CGRectMake(0,
@@ -39,6 +41,7 @@ class DBStatusBarView: UIView {
     }
     
     func currentTextSize() -> CGSize {
+        debugPrint("-currentTextSize")
         var textSize = CGSizeZero
         // use new sizeWithAttributes: if possible
         let selector: Selector = NSSelectorFromString("sizeWithAttributes:")
