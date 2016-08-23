@@ -37,7 +37,6 @@ class DBStatusBarView: UIView {
             indicatorFrame.origin.y = ceil(1 + (self.bounds.size.height - indicatorFrame.size.height) / 2.0)
             self.activityIndicatorView!.frame = indicatorFrame
         }
-        
     }
     
     func currentTextSize() -> CGSize {
@@ -57,7 +56,6 @@ class DBStatusBarView: UIView {
 //                textSize = self.textLabel.text!.sizeWithFont(self.textLabel.font)
             }
         }
- 
         return textSize;
     }
     

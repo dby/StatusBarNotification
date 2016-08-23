@@ -157,13 +157,12 @@ class DBStatusBarNotification: NSObject {
     func setDismissTimerWithInterval(interval: NSTimeInterval) {
         debugPrint("-setDismissTimerWithInterval")
         self.dismissTimer?.invalidate()
-        self.dismissTimer = NSTimer(fireDate: NSDate(timeIntervalSinceReferenceDate: interval),
-                                    interval: 0,
-                                    target: self,
-                                    selector: #selector(dismiss),
-                                    userInfo: nil,
-                                    repeats: false)
         
+        self.dismissTimer = NSTimer.scheduledTimerWithTimeInterval(interval,
+                                                                   target: self,
+                                                                   selector: #selector(dismiss),
+                                                                   userInfo: nil,
+                                                                   repeats: false)
         
         NSRunLoop.currentRunLoop().addTimer(self.dismissTimer!, forMode: NSRunLoopCommonModes)
     }
@@ -176,7 +175,7 @@ class DBStatusBarNotification: NSObject {
     func dismissAnimated(animated: Bool) {
         debugPrint("-dismissAnimated")
         self.dismissTimer?.invalidate()
-        self.dismissTimer = nil;
+        self.dismissTimer = nil
     
         // check animation type
         let animationsEnabled: Bool = (self.activeStyle!.animationType != .None)
@@ -197,7 +196,7 @@ class DBStatusBarNotification: NSObject {
             self.overlayWindow?.hidden = true
             self.overlayWindow?.rootViewController = nil
             self.overlayWindow = nil
-            self.progressView = nil
+            self.progressView  = nil
             self.topBar = nil
         }
         if animatedChanged {
@@ -379,12 +378,13 @@ class DBStatusBarNotification: NSObject {
         if (style!.animationType != .Fade) {
             topBar.transform = CGAffineTransformMakeTranslation(0, -topBar.frame.size.height);
         } else {
-            self.topBar?.alpha = 0.0
+            topBar.alpha = 0.0
         }
         return topBar
     }()
     
     private lazy var progressView: UIView? = {
+        
         debugPrint("property-progressView")
         let progressView = UIView()
         return progressView

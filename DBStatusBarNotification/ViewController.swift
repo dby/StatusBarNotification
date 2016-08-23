@@ -15,6 +15,41 @@ class ViewController: UIViewController {
         
         self.title = "DBStatusBarNotification"
         self.view.addSubview(self.tableView)
+        
+        self.addCustomStyle()
+    }
+    
+    func addCustomStyle() {
+        
+        DBStatusBarNotification.addStyleNamed("SBStyle1") { (style) -> DBStatusBarStyle in
+            
+            style!.barColor  = UIColor.init(red: 0.797, green: 0.000, blue: 0.662, alpha: 1.0)
+            style!.textColor = UIColor.whiteColor()
+            style!.animationType = .Fade
+            style!.font = UIFont.init(name: "SnellRoundhand-Bold", size: 17.0)
+            style!.progressBarColor = UIColor.init(red: 0.986, green: 0.062, blue: 0.598, alpha: 1.0)
+            style!.progressBarHeight = 20.0
+            return style!
+        }
+        
+        DBStatusBarNotification.addStyleNamed("SBStyle2") { (style) -> DBStatusBarStyle in
+            
+            style!.barColor =  UIColor.cyanColor()
+            style!.textColor = UIColor.init(red: 0.056, green: 0.478, blue: 0.998, alpha: 1.0)
+            style!.animationType = .Bounce
+            style!.progressBarColor = style!.textColor
+            style!.progressBarHeight = 5.0
+            style!.progressBarPosition = .Top;
+            
+            if Double(UIDevice.currentDevice().systemVersion) >= 7.0 {
+                style?.font = UIFont.init(name: "DINCondensed-Bold", size: 17.0)
+                style?.textVerticalPositionAdjustment = 2.0
+            } else {
+                style?.font = UIFont.init(name: "DINCondensed-Bold", size: 17.0)
+            }
+            
+            return style!
+        }
     }
     
     //MARK:-----Setter Getter-----
@@ -90,30 +125,28 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                                                                     repeats: true)
                 NSRunLoop.currentRunLoop().addTimer(self.timer!, forMode: NSRunLoopCommonModes)
             } else if indexPath.row == 2 {
-                
+                DBStatusBarNotification.showActivityIndicator(true, style: .Gray)
             } else if indexPath.row == 3 {
                 DBStatusBarNotification.dismiss()
             }
             
         } else if indexPath.section == 1 {
-            if indexPath.row == 0 {
-                
-            } else if indexPath.row == 1 {
-                
+            var style: String = DBStatusBarStyleError
+            if indexPath.row == 1 {
+                style = DBStatusBarStyleWarning
             } else if indexPath.row == 2 {
-                
+                style = DBStatusBarStyleSuccess
             } else if indexPath.row == 3 {
-                
+                style = DBStatusBarStyleDark
             } else if indexPath.row == 4 {
-                
+                style = DBStatusBarStyleMatrix
             }
-            
+            DBStatusBarNotification.showWithStatus("duration 2s", timeInterval: 2.0, styleName: style)
         } else {
-            if indexPath.row == 0 {
-                
-            } else {
-                
-            }
+//            self.indicatorStyle = (row==0) ? UIActivityIndicatorViewStyleWhite : UIActivityIndicatorViewStyleGray;
+            
+            let style: String = (indexPath.row == 0) ? "SBStyle1" : "SBStyle2"
+            DBStatusBarNotification.showWithStatus("Custom Style", timeInterval: 4.0, styleName: style)
         }
     }
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
