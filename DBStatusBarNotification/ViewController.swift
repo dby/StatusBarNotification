@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     
     func addCustomStyle() {
         
-        DBStatusBarNotification.addStyleNamed("SBStyle1") { (style) -> DBStatusBarStyle in
+        StatusBarNotification.addStyleNamed("SBStyle1") { (style) -> StatusBarProperty in
             
             style!.barColor  = UIColor.init(red: 0.797, green: 0.000, blue: 0.662, alpha: 1.0)
             style!.textColor = UIColor.whiteColor()
@@ -32,7 +32,7 @@ class ViewController: UIViewController {
             return style!
         }
         
-        DBStatusBarNotification.addStyleNamed("SBStyle2") { (style) -> DBStatusBarStyle in
+        StatusBarNotification.addStyleNamed("SBStyle2") { (style) -> StatusBarProperty in
             
             style!.barColor =  UIColor.cyanColor()
             style!.textColor = UIColor.init(red: 0.056, green: 0.478, blue: 0.998, alpha: 1.0)
@@ -85,7 +85,7 @@ class ViewController: UIViewController {
     //MARK:-----Action-----
     @objc private func timerAction() {
         self.progress += 0.1
-        DBStatusBarNotification.showProgress(self.progress)
+        StatusBarNotification.showProgress(self.progress)
         
         if self.progress > 1.0 {
             self.timer?.invalidate()
@@ -116,7 +116,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                DBStatusBarNotification.showWithStatus("0 0")
+                StatusBarNotification.showWithStatus("0 0")
             } else if indexPath.row == 1 {
                 self.timer = NSTimer.scheduledTimerWithTimeInterval(0.5,
                                                                     target: self,
@@ -125,28 +125,28 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                                                                     repeats: true)
                 NSRunLoop.currentRunLoop().addTimer(self.timer!, forMode: NSRunLoopCommonModes)
             } else if indexPath.row == 2 {
-                DBStatusBarNotification.showActivityIndicator(true, style: .Gray)
+                StatusBarNotification.showActivityIndicator(true, style: .Gray)
             } else if indexPath.row == 3 {
-                DBStatusBarNotification.dismiss()
+                StatusBarNotification.dismiss()
             }
             
         } else if indexPath.section == 1 {
-            var style: String = DBStatusBarStyleError
+            var style: String = StatusBarNotification.StatusBarStyle.Default.rawValue
             if indexPath.row == 1 {
-                style = DBStatusBarStyleWarning
+                style = StatusBarNotification.StatusBarStyle.Warning.rawValue
             } else if indexPath.row == 2 {
-                style = DBStatusBarStyleSuccess
+                style = StatusBarNotification.StatusBarStyle.Success.rawValue
             } else if indexPath.row == 3 {
-                style = DBStatusBarStyleDark
+                style = StatusBarNotification.StatusBarStyle.Dark.rawValue
             } else if indexPath.row == 4 {
-                style = DBStatusBarStyleMatrix
+                style = StatusBarNotification.StatusBarStyle.Matrix.rawValue
             }
-            DBStatusBarNotification.showWithStatus("duration 2s", timeInterval: 2.0, styleName: style)
+            StatusBarNotification.showWithStatus("duration 2s", timeInterval: 2.0, styleName: style)
         } else {
 //            self.indicatorStyle = (row==0) ? UIActivityIndicatorViewStyleWhite : UIActivityIndicatorViewStyleGray;
             
             let style: String = (indexPath.row == 0) ? "SBStyle1" : "SBStyle2"
-            DBStatusBarNotification.showWithStatus("Custom Style", timeInterval: 4.0, styleName: style)
+            StatusBarNotification.showWithStatus("Custom Style", timeInterval: 4.0, styleName: style)
         }
     }
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

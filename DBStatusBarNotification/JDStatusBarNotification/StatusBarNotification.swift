@@ -8,33 +8,143 @@
 
 import UIKit
 
+enum StatusBarAnimationType {
+    case None   /// Notification won't animate
+    case Move   /// Notification will move in from the top, and move out again to the top
+    case Bounce /// Notification will fall down from the top and bounce a little bit
+    case Fade   /// Notification will fade in and fade out
+}
+
+enum StatusBarProgressBarPosition {
+    case Bottom /// progress bar will be at the bottom of the status bar
+    case Center /// progress bar will be at the center of the status bar
+    case Top    /// progress bar will be at the top of the status bar
+    case Below  /// progress bar will be below the status bar (the prograss bar won't move with the statusbar in this case)
+    case NavBar /// progress bar will be below the navigation bar (the prograss bar won't move with the statusbar in this case)
+}
+
+/*
+ * This class declare the StatusBar's properties
+ */
+class StatusBarProperty: NSObject, NSCopying {
+    //MARK:-----Variables-----
+    /// The background color of the notification bar
+    internal var barColor: UIColor?
+    /// The text color of the notification label
+    internal var textColor: UIColor?
+    /// The text shadow of the notification label
+    internal var textShadow: NSShadow?
+    /// The font of the notification label
+    internal var font: UIFont?
+    /// A correction of the vertical label position in points. Default is 0.0
+    internal var textVerticalPositionAdjustment: CGFloat = 0.0
+    
+    //MARK:-----Animation-----
+    /// The animation, that is used to present the notification
+    internal var animationType: StatusBarAnimationType = .None
+    
+    //MARK:-----Progress Bar-----
+    /// The background color of the progress bar (on top of the notification bar)
+    internal var progressBarColor: UIColor?
+    /// The height of the progress bar. Default is 1.0
+    internal var progressBarHeight:CGFloat = 1.0
+    /// The position of the progress bar. Default is JDStatusBarProgressBarPositionBottom
+    internal var progressBarPosition: StatusBarProgressBarPosition = .Bottom
+    
+    func copyWithZone(zone: NSZone) -> AnyObject {
+        debugPrint("copyWithZone")
+        let style: StatusBarProperty = StatusBarProperty()
+        style.barColor  = self.barColor
+        style.textColor = self.textColor
+        style.textShadow = self.textShadow
+        style.font = self.font
+        style.textVerticalPositionAdjustment = self.textVerticalPositionAdjustment
+        style.animationType = self.animationType
+        style.progressBarColor  = self.progressBarColor
+        style.progressBarHeight = self.progressBarHeight
+        style.progressBarPosition = self.progressBarPosition
+        return style
+    }
+}
+
 /**
  *  This class is a singletion which is used to present notifications
  *  on top of the status bar. To present a notification, use one of the
  *  given class methods.
  */
-class DBStatusBarNotification: NSObject {
+public class StatusBarNotification: NSObject {
 
-    /**
-     *  A block that is used to define the appearance of a notification.
-     *  A DBStatusBarStyle instance defines the notification appeareance.
-     *
-     *  @param style The current default DBStatusBarStyle instance.
-     *
-     *  @return The modified DBStatusBarStyle instance.
-     */
-    typealias DBPrepareStyleBlock = (style: DBStatusBarStyle?) -> DBStatusBarStyle
-    
+    typealias DBPrepareStyleBlock = (style: StatusBarProperty?) -> StatusBarProperty
     private var dismissTimer: NSTimer?
     
-    private var activeStyle: DBStatusBarStyle?
-    private var defaultStyle: DBStatusBarStyle?
-    private var userStyles: [String : DBStatusBarStyle] = [:]
-    
-    private static let singleShareInstance: DBStatusBarNotification = DBStatusBarNotification()
-    class func shareInstance() -> DBStatusBarNotification {
+    private var activeStyle: StatusBarProperty?
+    private var defaultStyle: StatusBarProperty?
+    private var userStyles: [String : StatusBarProperty] = [:]
+   
+    private static let singleShareInstance: StatusBarNotification = StatusBarNotification()
+    private class func shareInstance() -> StatusBarNotification {
         debugPrint("+shareInstance")
         return singleShareInstance
+    }
+    
+    public enum StatusBarStyle: String {
+        case Default = "DBStatusBarStyleDefault"
+        case Error   = "DBStatusBarStyleError"
+        case Warning = "DBStatusBarStyleWarning"
+        case Success = "DBStatusBarStyleSuccess"
+        case Matrix  = "DBStatusBarStyleMatrix"
+        case Dark    = "DBStatusBarStyleDark"
+        
+        static func allDefaultStyle() -> [StatusBarStyle] {
+            return [Warning, Success, Matrix, Dark, Error, Default]
+        }
+        
+        internal var style: StatusBarProperty {
+            let style: StatusBarProperty = StatusBarProperty()
+            style.barColor = UIColor.whiteColor()
+            style.progressBarColor  = UIColor.greenColor()
+            style.progressBarHeight = 1.0
+            style.progressBarPosition = .Bottom
+            style.textColor = UIColor.grayColor()
+            style.font = UIFont.systemFontOfSize(12)
+            style.animationType = .Move
+            
+            switch self {
+            case .Default:
+                return style
+            case .Error:
+                style.barColor  = UIColor(red:0.588, green:0.118, blue:0.000, alpha:1.000)
+                style.textColor = UIColor.whiteColor()
+                style.progressBarColor  = UIColor.redColor()
+                style.progressBarHeight = 2.0
+                return style
+            case .Warning:
+                style.barColor  = UIColor(red:0.900, green:0.734, blue:0.034, alpha:1.000)
+                style.textColor = UIColor.darkGrayColor()
+                style.progressBarColor = style.textColor
+                return style
+            case .Success:
+                style.barColor  = UIColor(red:0.588, green:0.797, blue:0.000, alpha:1.000)
+                style.textColor = UIColor.whiteColor()
+                style.progressBarColor  = UIColor(red:0.106, green:0.594, blue:0.319, alpha:1.000)
+                style.progressBarHeight = 1.0+1.0/UIScreen.mainScreen().scale
+                return style
+            case .Matrix:
+                style.barColor  = UIColor.blackColor()
+                style.textColor = UIColor.greenColor()
+                style.font =  UIFont(name: "Courier-Bold", size: 14.0)
+                style.progressBarColor  = UIColor.greenColor()
+                style.progressBarHeight = 2.0
+                return style
+            case .Dark:
+                style.barColor  = UIColor.blackColor()
+                style.textColor = UIColor.greenColor()
+                style.font =  UIFont(name: "Courier-Bold", size: 14.0)
+                style.progressBarColor  = UIColor.greenColor()
+                style.progressBarHeight = 2.0
+                return style
+            }
+        }
     }
     
     //MARK:-----Implementation-----
@@ -57,13 +167,12 @@ class DBStatusBarNotification: NSObject {
     }
     
     //MARK:-----Custom Styles-----
-    func setupDefaultStyles()
-    {
+    func setupDefaultStyles() {
         debugPrint("-setupDefaultStyles")
-        self.defaultStyle = DBStatusBarStyle.defaultStyleWithName(DBStatusBarStyleDefault)
-    
-        DBStatusBarStyle.allDefaultStyleIdentifier().forEach { (styleName: String) in
-            self.userStyles[styleName] = DBStatusBarStyle.defaultStyleWithName(styleName)
+        self.defaultStyle = StatusBarStyle.Default.style
+        
+        StatusBarStyle.allDefaultStyle().forEach { (statusBarStyle: StatusBarStyle) in
+            self.userStyles[statusBarStyle.rawValue] = statusBarStyle.style
         }
     }
     
@@ -72,7 +181,7 @@ class DBStatusBarNotification: NSObject {
         assert(identifier != nil, "No identifier provided")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
-        let style: DBStatusBarStyle = self.defaultStyle!.copy() as! DBStatusBarStyle
+        let style: StatusBarProperty = self.defaultStyle!.copy() as! StatusBarProperty
         self.userStyles[identifier!] = prepareBlock!(style: style)
         
         return identifier!
@@ -81,7 +190,7 @@ class DBStatusBarNotification: NSObject {
     //MARK:-----Presentation-----
     func showWithStatus(status: String?, styleName: String?) -> UIView? {
         debugPrint("-showWithStatus:status:styleName")
-        var style: DBStatusBarStyle?
+        var style: StatusBarProperty?
         if styleName != nil {
             style = self.userStyles[styleName!]
         }
@@ -91,7 +200,7 @@ class DBStatusBarNotification: NSObject {
         return self.showWithStatus(status, style: style)
     }
     
-    func showWithStatus(status: String?, style: DBStatusBarStyle?) -> UIView? {
+    func showWithStatus(status: String?, style: StatusBarProperty?) -> UIView? {
         debugPrint("-showWithStatus:status:style")
         // first, check if status bar is visible at all
         if UIApplication.sharedApplication().statusBarHidden {
@@ -194,10 +303,10 @@ class DBStatusBarNotification: NSObject {
         let complete = { (finished: Bool) in
             self.overlayWindow?.removeFromSuperview()
             self.overlayWindow?.hidden = true
-            self.overlayWindow?.rootViewController = nil
-            self.overlayWindow = nil
-            self.progressView  = nil
-            self.topBar = nil
+//            self.overlayWindow?.rootViewController = nil
+//            self.overlayWindow = nil
+//            self.progressView  = nil
+//            self.topBar = nil
         }
         if animatedChanged {
             UIView.animateWithDuration(0.4, animations: animation, completion: complete)
@@ -256,7 +365,7 @@ class DBStatusBarNotification: NSObject {
         self.topBar?.layer.addAnimation(animation, forKey: "JDBounceAnimation")
     }
     
-    override func animationDidStop(anim: CAAnimation, finished:Bool) {
+    override public func animationDidStop(anim: CAAnimation, finished:Bool) {
         debugPrint("-animationDidStop")
         self.topBar?.transform = CGAffineTransformIdentity
         self.topBar?.layer.removeAllAnimations()
@@ -366,12 +475,12 @@ class DBStatusBarNotification: NSObject {
         return overlayWindow
     }()
     
-    private lazy var topBar: DBStatusBarView? = {
+    private lazy var topBar: StatusBarView? = {
         debugPrint("property-topBar")
-        let topBar: DBStatusBarView = DBStatusBarView()
+        let topBar: StatusBarView = StatusBarView()
         self.overlayWindow?.rootViewController?.view.addSubview(topBar)
         
-        var style: DBStatusBarStyle? = self.activeStyle
+        var style: StatusBarProperty? = self.activeStyle
         if self.activeStyle == nil {
             style = self.defaultStyle!
         }
@@ -436,7 +545,7 @@ class DBStatusBarNotification: NSObject {
     }
 }
 
-extension DBStatusBarNotification {
+extension StatusBarNotification {
     //MARK:-----Presentation-----
     /**
      *  Show a notification. It won't hide automatically,
@@ -521,7 +630,7 @@ extension DBStatusBarNotification {
      */
     class func dismissAnimated(animated: Bool) {
         debugPrint("+dismissAnimated")
-        DBStatusBarNotification.shareInstance().dismissAnimated(true)
+        StatusBarNotification.shareInstance().dismissAnimated(true)
     }
     
     /**
@@ -532,7 +641,7 @@ extension DBStatusBarNotification {
      */
     class func dismissAfter(delay: NSTimeInterval) {
         debugPrint("+dismissAfter")
-        DBStatusBarNotification.shareInstance().setDismissTimerWithInterval(delay)
+        StatusBarNotification.shareInstance().setDismissTimerWithInterval(delay)
     }
     
     //Mark:-----Styles-----
@@ -550,8 +659,8 @@ extension DBStatusBarNotification {
         debugPrint("+setDefaultStyle")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
-        let style: DBStatusBarStyle? = self.shareInstance().defaultStyle?.copy() as? DBStatusBarStyle
-        DBStatusBarNotification.shareInstance().defaultStyle = prepareBlock!(style: style)
+        let style: StatusBarProperty? = self.shareInstance().defaultStyle?.copy() as? StatusBarProperty
+        StatusBarNotification.shareInstance().defaultStyle = prepareBlock!(style: style)
     }
     
     /**
@@ -569,7 +678,7 @@ extension DBStatusBarNotification {
      */
     class func addStyleNamed(identifier: String, prepareBlock:DBPrepareStyleBlock) -> String {
         debugPrint("+addStyleNamed")
-        return DBStatusBarNotification.shareInstance().addStyleNamed(identifier, prepareBlock:prepareBlock)
+        return StatusBarNotification.shareInstance().addStyleNamed(identifier, prepareBlock:prepareBlock)
     }
     
     //Mark:-----progress & activity-----
@@ -580,7 +689,7 @@ extension DBStatusBarNotification {
      */
     class func showProgress(progress: CGFloat) {
         debugPrint("+showProgress")
-        return DBStatusBarNotification.shareInstance().progress = progress
+        return StatusBarNotification.shareInstance().progress = progress
     }
     
     /**
@@ -591,7 +700,7 @@ extension DBStatusBarNotification {
      */
     class func showActivityIndicator(show: Bool, style:UIActivityIndicatorViewStyle) {
         debugPrint("+showActivityIndicator")
-        return DBStatusBarNotification.shareInstance().showActivityIndicator(show, style: style)
+        return StatusBarNotification.shareInstance().showActivityIndicator(show, style: style)
     }
     
     //MARK:-----state-----
@@ -602,6 +711,18 @@ extension DBStatusBarNotification {
      */
     class func isVisible() -> Bool {
         debugPrint("+isVisible")
-        return DBStatusBarNotification.shareInstance().isVisible()
+        return StatusBarNotification.shareInstance().isVisible()
+    }
+}
+
+extension UIApplication {
+    func mainApplicationWindowIgnoringWindow(ignoringWindow: UIWindow?) -> UIWindow? {
+        debugPrint("extense+mainApplicationWindowIgnoringWindow")
+        for window: UIWindow in UIApplication.sharedApplication().windows {
+            if !window.hidden && windows != ignoringWindow {
+                return window
+            }
+        }
+        return nil
     }
 }

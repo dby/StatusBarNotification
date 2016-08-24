@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DBStatusBarView: UIView {
+class StatusBarView: UIView {
 
     //MARK:-----Variales-----
     internal var textVerticalPositionAdjustment: CGFloat = 0.0 {
@@ -21,7 +21,6 @@ class DBStatusBarView: UIView {
     
     //MARK:-----Layout-----
     override func layoutSubviews() {
-        
         debugPrint("layoutSubviews")
         super.layoutSubviews()
         // label
