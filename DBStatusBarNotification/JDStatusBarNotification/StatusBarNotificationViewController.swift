@@ -8,7 +8,7 @@
 
 import UIKit
 
-class JDStatusBarNotificationViewController: UIViewController {
+class StatusBarNotificationViewController: UIViewController {
 
     // rotation
     private lazy var mainController: UIViewController? = {

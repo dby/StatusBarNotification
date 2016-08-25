@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     
     func addCustomStyle() {
         
-        StatusBarNotification.addStyleNamed("SBStyle1") { (style) -> StatusBarProperty in
+        StatusBarNotification.addStyleNamed("SBStyle1") { (style) -> StatusBarStyle in
             
             style!.barColor  = UIColor.init(red: 0.797, green: 0.000, blue: 0.662, alpha: 1.0)
             style!.textColor = UIColor.whiteColor()
@@ -32,7 +32,7 @@ class ViewController: UIViewController {
             return style!
         }
         
-        StatusBarNotification.addStyleNamed("SBStyle2") { (style) -> StatusBarProperty in
+        StatusBarNotification.addStyleNamed("SBStyle2") { (style) -> StatusBarStyle in
             
             style!.barColor =  UIColor.cyanColor()
             style!.textColor = UIColor.init(red: 0.056, green: 0.478, blue: 0.998, alpha: 1.0)
@@ -77,7 +77,7 @@ class ViewController: UIViewController {
                         "Show DBStatusBarStyleMatrix",  "Duration 2s"]
         
         let section3 = ["show custom style1", "Duration 4s DBStatusBarAnimationTypeFade",
-                        "show custom style1", "Duration 4s DBStatusBarAnimationTypeBounce"]
+                        "show custom style2", "Duration 4s DBStatusBarAnimationTypeBounce"]
         
         return [section1, section2, section3]
     }()
@@ -129,22 +129,20 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             } else if indexPath.row == 3 {
                 StatusBarNotification.dismiss()
             }
-            
         } else if indexPath.section == 1 {
-            var style: String = StatusBarNotification.StatusBarStyle.Default.rawValue
+            var style: String = StatusBarStyle.StatusBarStyleType.Error.rawValue
             if indexPath.row == 1 {
-                style = StatusBarNotification.StatusBarStyle.Warning.rawValue
+                style = StatusBarStyle.StatusBarStyleType.Warning.rawValue
             } else if indexPath.row == 2 {
-                style = StatusBarNotification.StatusBarStyle.Success.rawValue
+                style = StatusBarStyle.StatusBarStyleType.Success.rawValue
             } else if indexPath.row == 3 {
-                style = StatusBarNotification.StatusBarStyle.Dark.rawValue
+                style = StatusBarStyle.StatusBarStyleType.Dark.rawValue
             } else if indexPath.row == 4 {
-                style = StatusBarNotification.StatusBarStyle.Matrix.rawValue
+                style = StatusBarStyle.StatusBarStyleType.Matrix.rawValue
             }
             StatusBarNotification.showWithStatus("duration 2s", timeInterval: 2.0, styleName: style)
         } else {
-//            self.indicatorStyle = (row==0) ? UIActivityIndicatorViewStyleWhite : UIActivityIndicatorViewStyleGray;
-            
+//            self.indicatorStyle = (indexPath.row==0) ? .White : .Gray;
             let style: String = (indexPath.row == 0) ? "SBStyle1" : "SBStyle2"
             StatusBarNotification.showWithStatus("Custom Style", timeInterval: 4.0, styleName: style)
         }

@@ -26,34 +26,24 @@ enum StatusBarProgressBarPosition {
 /*
  * This class declare the StatusBar's properties
  */
-class StatusBarProperty: NSObject, NSCopying {
+public class StatusBarStyle: NSObject, NSCopying {
     //MARK:-----Variables-----
-    /// The background color of the notification bar
-    internal var barColor: UIColor?
-    /// The text color of the notification label
-    internal var textColor: UIColor?
-    /// The text shadow of the notification label
-    internal var textShadow: NSShadow?
-    /// The font of the notification label
-    internal var font: UIFont?
-    /// A correction of the vertical label position in points. Default is 0.0
-    internal var textVerticalPositionAdjustment: CGFloat = 0.0
+    internal var barColor: UIColor?     /// The background color of the notification bar
+    internal var textColor: UIColor?    /// The text color of the notification label
+    internal var textShadow: NSShadow?  /// The text shadow of the notification label
+    internal var font: UIFont?          /// The font of the notification label
+    internal var textVerticalPositionAdjustment: CGFloat = 0.0 /// A correction of the vertical label position in points. Default is 0.0
     
-    //MARK:-----Animation-----
-    /// The animation, that is used to present the notification
-    internal var animationType: StatusBarAnimationType = .None
+    internal var animationType: StatusBarAnimationType = .None /// The animation, that is used to present the notification
     
-    //MARK:-----Progress Bar-----
-    /// The background color of the progress bar (on top of the notification bar)
-    internal var progressBarColor: UIColor?
-    /// The height of the progress bar. Default is 1.0
-    internal var progressBarHeight:CGFloat = 1.0
+    internal var progressBarColor: UIColor?      /// The background color of the progress bar (on top of the notification bar)
+    internal var progressBarHeight:CGFloat = 1.0 /// The height of the progress bar. Default is 1.0
     /// The position of the progress bar. Default is JDStatusBarProgressBarPositionBottom
     internal var progressBarPosition: StatusBarProgressBarPosition = .Bottom
     
-    func copyWithZone(zone: NSZone) -> AnyObject {
+    public func copyWithZone(zone: NSZone) -> AnyObject {
         debugPrint("copyWithZone")
-        let style: StatusBarProperty = StatusBarProperty()
+        let style: StatusBarStyle = StatusBarStyle()
         style.barColor  = self.barColor
         style.textColor = self.textColor
         style.textShadow = self.textShadow
@@ -65,42 +55,21 @@ class StatusBarProperty: NSObject, NSCopying {
         style.progressBarPosition = self.progressBarPosition
         return style
     }
-}
-
-/**
- *  This class is a singletion which is used to present notifications
- *  on top of the status bar. To present a notification, use one of the
- *  given class methods.
- */
-public class StatusBarNotification: NSObject {
-
-    typealias DBPrepareStyleBlock = (style: StatusBarProperty?) -> StatusBarProperty
-    private var dismissTimer: NSTimer?
     
-    private var activeStyle: StatusBarProperty?
-    private var defaultStyle: StatusBarProperty?
-    private var userStyles: [String : StatusBarProperty] = [:]
-   
-    private static let singleShareInstance: StatusBarNotification = StatusBarNotification()
-    private class func shareInstance() -> StatusBarNotification {
-        debugPrint("+shareInstance")
-        return singleShareInstance
-    }
-    
-    public enum StatusBarStyle: String {
-        case Default = "DBStatusBarStyleDefault"
-        case Error   = "DBStatusBarStyleError"
-        case Warning = "DBStatusBarStyleWarning"
-        case Success = "DBStatusBarStyleSuccess"
-        case Matrix  = "DBStatusBarStyleMatrix"
-        case Dark    = "DBStatusBarStyleDark"
+    public enum StatusBarStyleType: String {
+        case Default = "StatusBarStyleDefault"
+        case Error   = "StatusBarStyleError"
+        case Warning = "StatusBarStyleWarning"
+        case Success = "StatusBarStyleSuccess"
+        case Matrix  = "StatusBarStyleMatrix"
+        case Dark    = "StatusBarStyleDark"
         
-        static func allDefaultStyle() -> [StatusBarStyle] {
+        static func allDefaultStyle() -> [StatusBarStyleType] {
             return [Warning, Success, Matrix, Dark, Error, Default]
         }
         
-        internal var style: StatusBarProperty {
-            let style: StatusBarProperty = StatusBarProperty()
+        internal var style: StatusBarStyle {
+            let style: StatusBarStyle = StatusBarStyle()
             style.barColor = UIColor.whiteColor()
             style.progressBarColor  = UIColor.greenColor()
             style.progressBarHeight = 1.0
@@ -146,6 +115,27 @@ public class StatusBarNotification: NSObject {
             }
         }
     }
+}
+
+/**
+ *  This class is a singletion which is used to present notifications
+ *  on top of the status bar. To present a notification, use one of the
+ *  given class methods.
+ */
+public class StatusBarNotification: NSObject {
+
+    typealias DBPrepareStyleBlock = (style: StatusBarStyle?) -> StatusBarStyle
+    private var dismissTimer: NSTimer?
+    
+    private var activeStyle: StatusBarStyle?
+    private var defaultStyle: StatusBarStyle?
+    private var userStyles: [String : StatusBarStyle] = [:]
+   
+    private static let singleShareInstance: StatusBarNotification = StatusBarNotification()
+    private class func shareInstance() -> StatusBarNotification {
+        debugPrint("+shareInstance")
+        return singleShareInstance
+    }
     
     //MARK:-----Implementation-----
     private override init() {
@@ -169,9 +159,9 @@ public class StatusBarNotification: NSObject {
     //MARK:-----Custom Styles-----
     func setupDefaultStyles() {
         debugPrint("-setupDefaultStyles")
-        self.defaultStyle = StatusBarStyle.Default.style
+        self.defaultStyle = StatusBarStyle.StatusBarStyleType.Default.style
         
-        StatusBarStyle.allDefaultStyle().forEach { (statusBarStyle: StatusBarStyle) in
+        StatusBarStyle.StatusBarStyleType.allDefaultStyle().forEach { (statusBarStyle: StatusBarStyle.StatusBarStyleType) in
             self.userStyles[statusBarStyle.rawValue] = statusBarStyle.style
         }
     }
@@ -181,7 +171,7 @@ public class StatusBarNotification: NSObject {
         assert(identifier != nil, "No identifier provided")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
-        let style: StatusBarProperty = self.defaultStyle!.copy() as! StatusBarProperty
+        let style: StatusBarStyle = self.defaultStyle!.copy() as! StatusBarStyle
         self.userStyles[identifier!] = prepareBlock!(style: style)
         
         return identifier!
@@ -190,7 +180,7 @@ public class StatusBarNotification: NSObject {
     //MARK:-----Presentation-----
     func showWithStatus(status: String?, styleName: String?) -> UIView? {
         debugPrint("-showWithStatus:status:styleName")
-        var style: StatusBarProperty?
+        var style: StatusBarStyle?
         if styleName != nil {
             style = self.userStyles[styleName!]
         }
@@ -200,7 +190,7 @@ public class StatusBarNotification: NSObject {
         return self.showWithStatus(status, style: style)
     }
     
-    func showWithStatus(status: String?, style: StatusBarProperty?) -> UIView? {
+    func showWithStatus(status: String?, style: StatusBarStyle?) -> UIView? {
         debugPrint("-showWithStatus:status:style")
         // first, check if status bar is visible at all
         if UIApplication.sharedApplication().statusBarHidden {
@@ -327,26 +317,26 @@ public class StatusBarNotification: NSObject {
         // easing function (based on github.com/robb/RBBAnimation)
         let RBBEasingFunctionEaseOutBounce = { (t: Float) -> Float in
             if (t < 4.0/11.0) {
-                return pow(11.0/4.0, 2) * pow(t, 2)
+                return pow(11.0 / 4.0, 2) * pow(t, 2)
             }
             
             if (t < 8.0/11.0) {
-                return 3.0/4.0 + pow(11.0/4.0, 2) * pow(t - 6.0/11.0, 2)
+                return 3.0 / 4.0 + pow(11.0 / 4.0, 2) * pow(t - 6.0 / 11.0, 2)
             }
             
             if (t < 10.0 / 11.0) {
-                return 15.0/16.0 + pow(11.0/4.0, 2) * pow(t - 9.0/11.0, 2)
+                return 15.0 / 16.0 + pow(11.0 / 4.0, 2) * pow(t - 9.0 / 11.0, 2)
             }
             
-            return 63.0/64.0 + pow(11.0/4.0, 2) * pow(t - 21.0/22.0, 2)
+            return 63.0 / 64.0 + pow(11.0 / 4.0, 2) * pow(t - 21.0 / 22.0, 2)
         }
     
         // create values
-        let fromCenterY: Int = -20, toCenterY: Int = 0, animationSteps:Int = 100
+        let fromCenterY: Int = -20, toCenterY: Int = 0, animationSteps: Int = 100
         var values = [NSValue]()
         for t in 1...animationSteps {
             
-            let easedTime: Float  = RBBEasingFunctionEaseOutBounce(Float(t)*1.0)/Float(animationSteps)
+            let easedTime: Float  = RBBEasingFunctionEaseOutBounce((Float(t)*1.0)/Float(animationSteps))
             let easedValue: Float = Float(fromCenterY) + easedTime * (Float(toCenterY) - Float(fromCenterY))
             
             values.append(NSValue.init(CATransform3D: CATransform3DMakeTranslation(0, CGFloat.init(easedValue), 0)))
@@ -463,7 +453,7 @@ public class StatusBarNotification: NSObject {
         overlayWindow.backgroundColor = UIColor.clearColor()
         overlayWindow.userInteractionEnabled = false
         overlayWindow.windowLevel = UIWindowLevelStatusBar
-        overlayWindow.rootViewController = JDStatusBarNotificationViewController()
+        overlayWindow.rootViewController = StatusBarNotificationViewController()
         overlayWindow.rootViewController!.view.backgroundColor = UIColor.clearColor()
         
 //        if !NSProcessInfo().isOperatingSystemAtLeastVersion(NSOperatingSystemVersion(majorVersion: 7, minorVersion: 0, patchVersion: 0)) {
@@ -480,15 +470,6 @@ public class StatusBarNotification: NSObject {
         let topBar: StatusBarView = StatusBarView()
         self.overlayWindow?.rootViewController?.view.addSubview(topBar)
         
-        var style: StatusBarProperty? = self.activeStyle
-        if self.activeStyle == nil {
-            style = self.defaultStyle!
-        }
-        if (style!.animationType != .Fade) {
-            topBar.transform = CGAffineTransformMakeTranslation(0, -topBar.frame.size.height);
-        } else {
-            topBar.alpha = 0.0
-        }
         return topBar
     }()
     
@@ -511,16 +492,26 @@ public class StatusBarNotification: NSObject {
     
     func updateTopBarFrameWithStatusBarFrame(rect: CGRect) {
         debugPrint("-updateTopBarFrameWithStatusBarFrame")
-        let width: CGFloat = max(rect.size.width, rect.size.height)
-        let height: CGFloat = min(rect.size.width, rect.size.height)
+        
+        let width  = max(rect.size.width, rect.size.height)
+        let height = min(rect.size.width, rect.size.height)
     
         // on ios7 fix position, if statusBar has double height
         var yPos: CGFloat = 0
         if Double(UIDevice.currentDevice().systemVersion) >= 7.0 && height > 20.0 {
             yPos = -height/2.0
         }
-        
         self.topBar!.frame = CGRectMake(0, yPos, width, height)
+        
+        var style: StatusBarStyle? = self.activeStyle
+        if self.activeStyle == nil {
+            style = self.defaultStyle!
+        }
+        if (style!.animationType != .Fade) {
+            self.topBar!.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height)
+        } else {
+            self.topBar!.alpha = 0.0
+        }
     }
     
     func willChangeStatusBarFrame(notification: NSNotification) {
@@ -659,7 +650,7 @@ extension StatusBarNotification {
         debugPrint("+setDefaultStyle")
         assert(prepareBlock != nil, "No prepareBlock provided")
         
-        let style: StatusBarProperty? = self.shareInstance().defaultStyle?.copy() as? StatusBarProperty
+        let style: StatusBarStyle? = self.shareInstance().defaultStyle?.copy() as? StatusBarStyle
         StatusBarNotification.shareInstance().defaultStyle = prepareBlock!(style: style)
     }
     
