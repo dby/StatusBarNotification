@@ -8,10 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		431231E01D68D734006281AC /* StatusBarNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DB1D68D734006281AC /* StatusBarNotification.swift */; };
-		431231E11D68D734006281AC /* StatusBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DC1D68D734006281AC /* StatusBarStyle.swift */; };
 		431231E21D68D734006281AC /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DD1D68D734006281AC /* StatusBarView.swift */; };
 		431231E31D68D734006281AC /* StatusBarNotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431231DE1D68D734006281AC /* StatusBarNotificationViewController.swift */; };
-		4312D0581D69F30100D6D2F1 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4312D0571D69F30100D6D2F1 /* AppConfig.swift */; };
 		43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */; };
 		43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E2FF531D67F9DC00C10D6B /* ViewController.swift */; };
 		43E2FF571D67F9DC00C10D6B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43E2FF551D67F9DC00C10D6B /* Main.storyboard */; };
@@ -40,10 +38,8 @@
 
 /* Begin PBXFileReference section */
 		431231DB1D68D734006281AC /* StatusBarNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarNotification.swift; sourceTree = "<group>"; };
-		431231DC1D68D734006281AC /* StatusBarStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarStyle.swift; sourceTree = "<group>"; };
 		431231DD1D68D734006281AC /* StatusBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		431231DE1D68D734006281AC /* StatusBarNotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarNotificationViewController.swift; sourceTree = "<group>"; };
-		4312D0571D69F30100D6D2F1 /* AppConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		43E2FF4E1D67F9DC00C10D6B /* StatusBarNotification.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StatusBarNotification.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43E2FF511D67F9DC00C10D6B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		43E2FF531D67F9DC00C10D6B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -87,11 +83,9 @@
 		431231DA1D68D734006281AC /* StatusBarNotification */ = {
 			isa = PBXGroup;
 			children = (
-				431231DC1D68D734006281AC /* StatusBarStyle.swift */,
 				431231DD1D68D734006281AC /* StatusBarView.swift */,
 				431231DB1D68D734006281AC /* StatusBarNotification.swift */,
 				431231DE1D68D734006281AC /* StatusBarNotificationViewController.swift */,
-				4312D0571D69F30100D6D2F1 /* AppConfig.swift */,
 			);
 			name = StatusBarNotification;
 			path = JDStatusBarNotification;
@@ -287,12 +281,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				431231E31D68D734006281AC /* StatusBarNotificationViewController.swift in Sources */,
-				4312D0581D69F30100D6D2F1 /* AppConfig.swift in Sources */,
 				43E2FF541D67F9DC00C10D6B /* ViewController.swift in Sources */,
 				43E2FF521D67F9DC00C10D6B /* AppDelegate.swift in Sources */,
 				431231E01D68D734006281AC /* StatusBarNotification.swift in Sources */,
 				431231E21D68D734006281AC /* StatusBarView.swift in Sources */,
-				431231E11D68D734006281AC /* StatusBarStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
