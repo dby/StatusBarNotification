@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.title = "DBStatusBarNotification"
+        self.title = "StatusBarNotification"
         self.view.addSubview(self.tableView)
         
         self.addCustomStyle()
@@ -65,19 +65,19 @@ class ViewController: UIViewController {
     }()
     
     private lazy var dataSource: [[String]] = {
-        let section1 = ["Show Notification", "DBStatusBarStyleDefault",
+        let section1 = ["Show Notification", "StatusBarStyleDefault",
                         "Show Progress", "0-100% in 1s",
                         "Show Activity Indicator", "UIActivityIndicatorViewStyleGray",
                         "Dismss Notification", "Animated"]
         
-        let section2 = ["Show DBStatusBarStyleError",   "Duration 2s",
-                        "Show DBStatusBarStyleWarning", "Duration 2s",
-                        "Show DBStatusBarStyleSuccess", "Duration 2s",
-                        "Show DBStatusBarStyleDark",    "Duration 2s",
-                        "Show DBStatusBarStyleMatrix",  "Duration 2s"]
+        let section2 = ["Show StatusBarStyleError",   "Duration 2s",
+                        "Show StatusBarStyleWarning", "Duration 2s",
+                        "Show StatusBarStyleSuccess", "Duration 2s",
+                        "Show StatusBarStyleDark",    "Duration 2s",
+                        "Show StatusBarStyleMatrix",  "Duration 2s"]
         
-        let section3 = ["show custom style1", "Duration 4s DBStatusBarAnimationTypeFade",
-                        "show custom style2", "Duration 4s DBStatusBarAnimationTypeBounce"]
+        let section3 = ["show custom style1", "Duration 4s StatusBarAnimationTypeFade",
+                        "show custom style2", "Duration 4s StatusBarAnimationTypeBounce"]
         
         return [section1, section2, section3]
     }()

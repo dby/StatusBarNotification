@@ -293,10 +293,11 @@ public class StatusBarNotification: NSObject {
         let complete = { (finished: Bool) in
             self.overlayWindow?.removeFromSuperview()
             self.overlayWindow?.hidden = true
-//            self.overlayWindow?.rootViewController = nil
-//            self.overlayWindow = nil
-//            self.progressView  = nil
-//            self.topBar = nil
+            self.overlayWindow?.rootViewController = nil
+            self.overlayWindow = nil
+            self.progressView  = nil
+            self.topBar = nil
+            
         }
         if animatedChanged {
             UIView.animateWithDuration(0.4, animations: animation, completion: complete)

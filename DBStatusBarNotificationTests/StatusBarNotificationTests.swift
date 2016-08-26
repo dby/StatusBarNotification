@@ -1,15 +1,15 @@
 //
-//  DBStatusBarNotificationTests.swift
-//  DBStatusBarNotificationTests
+//  StatusBarNotificationTests.swift
+//  StatusBarNotificationTests
 //
 //  Created by sys on 16/8/20.
 //  Copyright © 2016年 sys. All rights reserved.
 //
 
 import XCTest
-@testable import DBStatusBarNotification
+@testable import StatusBarNotification
 
-class DBStatusBarNotificationTests: XCTestCase {
+class StatusBarNotificationTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
