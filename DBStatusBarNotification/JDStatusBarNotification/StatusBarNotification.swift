@@ -27,7 +27,7 @@ enum StatusBarProgressBarPosition {
  * This class declare the StatusBar's properties
  */
 public class StatusBarStyle: NSObject, NSCopying {
-    //MARK:-----Variables-----
+    
     internal var barColor: UIColor?     /// The background color of the notification bar
     internal var textColor: UIColor?    /// The text color of the notification label
     internal var textShadow: NSShadow?  /// The text shadow of the notification label
@@ -38,7 +38,7 @@ public class StatusBarStyle: NSObject, NSCopying {
     
     internal var progressBarColor: UIColor?      /// The background color of the progress bar (on top of the notification bar)
     internal var progressBarHeight:CGFloat = 1.0 /// The height of the progress bar. Default is 1.0
-    /// The position of the progress bar. Default is JDStatusBarProgressBarPositionBottom
+    /// The position of the progress bar. Default is StatusBarProgressBarPositionBottom
     internal var progressBarPosition: StatusBarProgressBarPosition = .Bottom
     
     public func copyWithZone(zone: NSZone) -> AnyObject {
@@ -106,11 +106,9 @@ public class StatusBarStyle: NSObject, NSCopying {
                 style.progressBarHeight = 2.0
                 return style
             case .Dark:
-                style.barColor  = UIColor.blackColor()
-                style.textColor = UIColor.greenColor()
-                style.font =  UIFont(name: "Courier-Bold", size: 14.0)
-                style.progressBarColor  = UIColor.greenColor()
-                style.progressBarHeight = 2.0
+                style.barColor = UIColor.init(red:0.050, green:0.078, blue:0.120, alpha:1.000)
+                style.textColor = UIColor.init(white: 0.95, alpha: 1.0)
+                style.progressBarHeight = 1.0 + 1.0/UIScreen.mainScreen().scale
                 return style
             }
         }
@@ -124,7 +122,7 @@ public class StatusBarStyle: NSObject, NSCopying {
  */
 public class StatusBarNotification: NSObject {
 
-    typealias DBPrepareStyleBlock = (style: StatusBarStyle?) -> StatusBarStyle
+    typealias PrepareStyleBlock = (style: StatusBarStyle?) -> StatusBarStyle
     private var dismissTimer: NSTimer?
     
     private var activeStyle: StatusBarStyle?
@@ -137,7 +135,7 @@ public class StatusBarNotification: NSObject {
         return singleShareInstance
     }
     
-    //MARK:-----Implementation-----
+    //MARK:-----Life Cycle-----
     private override init() {
         debugPrint("-init")
         super.init()
@@ -156,213 +154,7 @@ public class StatusBarNotification: NSObject {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    //MARK:-----Custom Styles-----
-    func setupDefaultStyles() {
-        debugPrint("-setupDefaultStyles")
-        self.defaultStyle = StatusBarStyle.StatusBarStyleType.Default.style
-        
-        StatusBarStyle.StatusBarStyleType.allDefaultStyle().forEach { (statusBarStyle: StatusBarStyle.StatusBarStyleType) in
-            self.userStyles[statusBarStyle.rawValue] = statusBarStyle.style
-        }
-    }
-    
-    func addStyleNamed(identifier: String?, prepareBlock: DBPrepareStyleBlock?) -> String {
-        debugPrint("-addStyleNamed")
-        assert(identifier != nil, "No identifier provided")
-        assert(prepareBlock != nil, "No prepareBlock provided")
-        
-        let style: StatusBarStyle = self.defaultStyle!.copy() as! StatusBarStyle
-        self.userStyles[identifier!] = prepareBlock!(style: style)
-        
-        return identifier!
-    }
-    
-    //MARK:-----Presentation-----
-    func showWithStatus(status: String?, styleName: String?) -> UIView? {
-        debugPrint("-showWithStatus:status:styleName")
-        var style: StatusBarStyle?
-        if styleName != nil {
-            style = self.userStyles[styleName!]
-        }
-        if style == nil {
-            style = self.defaultStyle
-        }
-        return self.showWithStatus(status, style: style)
-    }
-    
-    func showWithStatus(status: String?, style: StatusBarStyle?) -> UIView? {
-        debugPrint("-showWithStatus:status:style")
-        // first, check if status bar is visible at all
-        if UIApplication.sharedApplication().statusBarHidden {
-            return nil
-        }
-        // prepare for new style
-        if style != self.activeStyle {
-            self.activeStyle = style
-            if self.activeStyle?.animationType == .Fade {
-                self.topBar?.alpha = 0
-                self.topBar?.transform = CGAffineTransformIdentity
-            } else {
-                self.topBar?.alpha = 1
-                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -(self.topBar!.frame.size.height))
-            }
-        }
-        
-        self.updateWindowTransform()
-        self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
-        
-        // cancel previous dismissing & remove animations
-        NSRunLoop.currentRunLoop().cancelPerformSelector(#selector(dismiss), target: self, argument: nil)
-        self.topBar?.layer.removeAllAnimations()
-        
-        // create & show window
-        self.overlayWindow?.hidden = false
-        
-        // update style
-        self.topBar?.backgroundColor = style?.barColor
-        self.topBar?.textVerticalPositionAdjustment = style!.textVerticalPositionAdjustment
-        let textLabel: UILabel? = self.topBar?.textLabel
-        textLabel?.textColor = style?.textColor
-        textLabel?.font = style?.font
-        textLabel?.text = status
-        textLabel?.accessibilityLabel = status
-        
-        if ((style?.textShadow) != nil) {
-            textLabel?.shadowColor  = style?.textShadow?.shadowColor as? UIColor
-            textLabel?.shadowOffset = (style?.textShadow?.shadowOffset)!
-         } else {
-            textLabel?.shadowColor  = nil
-            textLabel?.shadowOffset = CGSizeZero
-        }
-    
-        // reset progress & activity
-        self.showActivityIndicator(false, style: .White)
-        
-        // animate in
-        let animationsEnabled: Bool = (style?.animationType != .None)
-        if (animationsEnabled && style?.animationType == .Bounce) {
-            self.animateInWithBounceAnimation()
-        } else {
-            UIView.animateWithDuration(animationsEnabled ? 0.4 : 0.0, animations: {
-                self.topBar?.alpha = 1.0
-                self.topBar?.transform = CGAffineTransformIdentity
-            })
-        }
-    
-        return self.topBar
-    }
-    
-    //MARK:-----Dismissal-----
-    func setDismissTimerWithInterval(interval: NSTimeInterval) {
-        debugPrint("-setDismissTimerWithInterval")
-        self.dismissTimer?.invalidate()
-        
-        self.dismissTimer = NSTimer.scheduledTimerWithTimeInterval(interval,
-                                                                   target: self,
-                                                                   selector: #selector(dismiss),
-                                                                   userInfo: nil,
-                                                                   repeats: false)
-        
-        NSRunLoop.currentRunLoop().addTimer(self.dismissTimer!, forMode: NSRunLoopCommonModes)
-    }
-    
-    func dismiss(timer: NSTimer) {
-        debugPrint("-dismiss")
-        self.dismissAnimated(true)
-    }
-    
-    func dismissAnimated(animated: Bool) {
-        debugPrint("-dismissAnimated")
-        self.dismissTimer?.invalidate()
-        self.dismissTimer = nil
-    
-        // check animation type
-        let animationsEnabled: Bool = (self.activeStyle!.animationType != .None)
-        var animatedChanged = false
-        if animated && animationsEnabled {
-            animatedChanged = true
-        }
-        let animation: dispatch_block_t =  {
-            if (self.activeStyle!.animationType == .Fade) {
-                self.topBar?.alpha = 0.0;
-            } else {
-                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height)
-            }
-        }
-    
-        let complete = { (finished: Bool) in
-            self.overlayWindow?.removeFromSuperview()
-            self.overlayWindow?.hidden = true
-            self.overlayWindow?.rootViewController = nil
-            self.overlayWindow = nil
-            self.progressView  = nil
-            self.topBar = nil
-            
-        }
-        if animatedChanged {
-            UIView.animateWithDuration(0.4, animations: animation, completion: complete)
-        } else {
-            animation()
-            complete(true)
-        }
-    }
-    
-    //MARK:-----Bounce Animation-----
-    func animateInWithBounceAnimation() {
-        debugPrint("-animateInWithBounceAnimation")
-        //don't animate in, if topBar is already fully visible
-        if (self.topBar?.frame.origin.y >= 0) {
-            return
-        }
-    
-        // easing function (based on github.com/robb/RBBAnimation)
-        let RBBEasingFunctionEaseOutBounce = { (t: Float) -> Float in
-            if (t < 4.0/11.0) {
-                return pow(11.0 / 4.0, 2) * pow(t, 2)
-            }
-            
-            if (t < 8.0/11.0) {
-                return 3.0 / 4.0 + pow(11.0 / 4.0, 2) * pow(t - 6.0 / 11.0, 2)
-            }
-            
-            if (t < 10.0 / 11.0) {
-                return 15.0 / 16.0 + pow(11.0 / 4.0, 2) * pow(t - 9.0 / 11.0, 2)
-            }
-            
-            return 63.0 / 64.0 + pow(11.0 / 4.0, 2) * pow(t - 21.0 / 22.0, 2)
-        }
-    
-        // create values
-        let fromCenterY: Int = -20, toCenterY: Int = 0, animationSteps: Int = 100
-        var values = [NSValue]()
-        for t in 1...animationSteps {
-            
-            let easedTime: Float  = RBBEasingFunctionEaseOutBounce((Float(t)*1.0)/Float(animationSteps))
-            let easedValue: Float = Float(fromCenterY) + easedTime * (Float(toCenterY) - Float(fromCenterY))
-            
-            values.append(NSValue.init(CATransform3D: CATransform3DMakeTranslation(0, CGFloat.init(easedValue), 0)))
-        }
-    
-        // build animation
-        let animation: CAKeyframeAnimation = CAKeyframeAnimation(keyPath: "transform")
-        animation.timingFunctions = [CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)]
-        animation.duration = 0.66
-        animation.values   = values
-        animation.removedOnCompletion = false
-        animation.fillMode = kCAFillModeForwards
-        animation.delegate = self
-        
-        self.topBar?.layer.setValue(toCenterY, forKey: animation.keyPath!)
-        self.topBar?.layer.addAnimation(animation, forKey: "JDBounceAnimation")
-    }
-    
-    override public func animationDidStop(anim: CAAnimation, finished:Bool) {
-        debugPrint("-animationDidStop")
-        self.topBar?.transform = CGAffineTransformIdentity
-        self.topBar?.layer.removeAllAnimations()
-    }
-    
-    //MARK:-----Progress & Activity-----
+    ///-----Progress Value-----
     internal var progress: CGFloat = 0.0 {
         willSet {
             debugPrint("property-progress")
@@ -371,7 +163,7 @@ public class StatusBarNotification: NSObject {
             }
             
             // trim progress
-            self.progress = min(1.0, max(0.0,newValue))
+            self.progress = min(1.0, max(0.0, newValue))
             
             if (self.progress == 0.0) {
                 self.progressView?.frame = CGRectZero
@@ -426,12 +218,182 @@ public class StatusBarNotification: NSObject {
         }
     }
     
+    //MARK:-----Setter Getter-----
+    //NOTE:此处不能使用懒加载，懒加载只会执行一次，这次希望的效果是当overlayWindowInstance为nil时，会重新执行；而如果是懒加载，则只会执行一次
+    private var overlayWindowInstance: UIWindow?
+    private var overlayWindow: UIWindow?  {
+        get {
+            debugPrint("get-property-overlayWindow")
+            if self.overlayWindowInstance == nil {
+                
+                self.overlayWindowInstance = UIWindow.init(frame: UIScreen.mainScreen().bounds)
+                self.overlayWindowInstance!.backgroundColor = UIColor.clearColor()
+                self.overlayWindowInstance!.userInteractionEnabled = false
+                self.overlayWindowInstance!.windowLevel = UIWindowLevelStatusBar
+                self.overlayWindowInstance!.rootViewController = StatusBarNotificationViewController()
+                self.overlayWindowInstance!.rootViewController!.view.backgroundColor = UIColor.clearColor()
+                
+                self.updateWindowTransform()
+                self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
+            }
+            return self.overlayWindowInstance
+        }
+        
+        set {
+            debugPrint("set-property-overlayWindow")
+            self.overlayWindowInstance = newValue
+        }
+    }
+    
+    private var topBarInstance: StatusBarView?
+    private var topBar: StatusBarView?  {
+        get {
+            if topBarInstance == nil {
+                self.topBarInstance = StatusBarView()
+            }
+            self.overlayWindow?.rootViewController?.view.addSubview(self.topBarInstance!)
+            
+            return topBarInstance
+        }
+        set {
+           self.topBarInstance = newValue
+        }
+    }
+    
+    private var progressViewInstance: UIView?
+    private var progressView: UIView? {
+        get {
+            if progressViewInstance == nil {
+                debugPrint("property-progressView")
+                self.progressViewInstance = UIView()
+            }
+            return self.progressViewInstance
+        }
+        set {
+            self.progressViewInstance = newValue
+        }
+    }
+}
+
+extension StatusBarNotification {
+    
+    func setupDefaultStyles() {
+        debugPrint("-setupDefaultStyles")
+        self.defaultStyle = StatusBarStyle.StatusBarStyleType.Default.style
+        
+        StatusBarStyle.StatusBarStyleType.allDefaultStyle().forEach { (statusBarStyle: StatusBarStyle.StatusBarStyleType) in
+            self.userStyles[statusBarStyle.rawValue] = statusBarStyle.style
+        }
+    }
+    
+    func addStyleNamed(identifier: String?, prepareBlock: PrepareStyleBlock?) -> String {
+        debugPrint("-addStyleNamed")
+        assert(identifier != nil, "No identifier provided")
+        assert(prepareBlock != nil, "No prepareBlock provided")
+        
+        let style: StatusBarStyle = self.defaultStyle!.copy() as! StatusBarStyle
+        self.userStyles[identifier!] = prepareBlock!(style: style)
+        
+        return identifier!
+    }
+    
+    //MARK:-----show status-----
+    func showWithStatus(status: String?, styleName: String?) -> UIView? {
+        debugPrint("-showWithStatus:status:styleName")
+        var style: StatusBarStyle?
+        if styleName != nil {
+            style = self.userStyles[styleName!]
+        }
+        if style == nil {
+            style = self.defaultStyle
+        }
+        return self.showWithStatus(status, style: style)
+    }
+    
+    func showWithStatus(status: String?, style: StatusBarStyle?) -> UIView? {
+        debugPrint("-showWithStatus:status:style")
+        // first, check if status bar is visible at all
+        if UIApplication.sharedApplication().statusBarHidden {
+            return nil
+        }
+        // prepare for new style
+        if style != self.activeStyle {
+            self.activeStyle = style
+            if self.activeStyle?.animationType == .Fade {
+                self.topBar?.alpha = 0
+                self.topBar?.transform = CGAffineTransformIdentity
+            } else {
+                self.topBar?.alpha = 1
+                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -(self.topBar!.frame.size.height))
+            }
+        }
+        
+        func showActivityIndicator(show:Bool, style:UIActivityIndicatorViewStyle) {
+            debugPrint("-showActivityIndicator")
+            if (self.topBar == nil){
+                return;
+            }
+            
+            if (show) {
+                self.topBar?.activityIndicatorView?.startAnimating()
+                self.topBar?.activityIndicatorView?.activityIndicatorViewStyle = style
+            } else {
+                self.topBar?.activityIndicatorView?.stopAnimating()
+            }
+        }
+        
+        // cancel previous dismissing & remove animations
+        NSRunLoop.currentRunLoop().cancelPerformSelector(#selector(dismiss), target: self, argument: nil)
+        self.topBar?.layer.removeAllAnimations()
+        
+        // create & show window
+        self.overlayWindow?.hidden = false
+        
+        // update style
+        self.topBar?.backgroundColor = style?.barColor
+        self.topBar?.textVerticalPositionAdjustment = style!.textVerticalPositionAdjustment
+        let textLabel: UILabel? = self.topBar?.textLabel
+        textLabel?.textColor = style?.textColor
+        textLabel?.font = style?.font
+        textLabel?.text = status
+        textLabel?.accessibilityLabel = status
+        
+        if ((style?.textShadow) != nil) {
+            textLabel?.shadowColor  = style?.textShadow?.shadowColor as? UIColor
+            textLabel?.shadowOffset = (style?.textShadow?.shadowOffset)!
+        } else {
+            textLabel?.shadowColor  = nil
+            textLabel?.shadowOffset = CGSizeZero
+        }
+        
+        // reset progress & activity
+        self.showActivityIndicator(false, style: .White)
+        
+        // animate in
+        let animationsEnabled: Bool = (style?.animationType != .None)
+        if (animationsEnabled && style?.animationType == .Bounce) {
+            self.animateInWithBounceAnimation()
+        } else {
+            UIView.animateWithDuration(animationsEnabled ? 0.4 : 0.0, animations: {
+                self.topBar?.alpha = 1.0
+                self.topBar?.transform = CGAffineTransformIdentity
+            })
+        }
+        
+        return self.topBar
+    }
+    
+    func isVisible() -> Bool {
+        debugPrint("-isVisible")
+        return (self.topBar != nil)
+    }
+    
     func showActivityIndicator(show:Bool, style:UIActivityIndicatorViewStyle) {
         debugPrint("-showActivityIndicator")
         if (self.topBar == nil){
             return;
         }
-    
+        
         if (show) {
             self.topBar?.activityIndicatorView?.startAnimating()
             self.topBar?.activityIndicatorView?.activityIndicatorViewStyle = style
@@ -440,48 +402,120 @@ public class StatusBarNotification: NSObject {
         }
     }
     
-    //MARK:-----State-----
-    func isVisible() -> Bool {
-        debugPrint("-isVisible")
-        return (self.topBar != nil)
+    //MARK:-----Dismissal-----
+    func setDismissTimerWithInterval(interval: NSTimeInterval) {
+        debugPrint("-setDismissTimerWithInterval")
+        self.dismissTimer?.invalidate()
+        
+        self.dismissTimer = NSTimer.scheduledTimerWithTimeInterval(interval,
+                                                                   target: self,
+                                                                   selector: #selector(dismiss),
+                                                                   userInfo: nil,
+                                                                   repeats: false)
+        
+        NSRunLoop.currentRunLoop().addTimer(self.dismissTimer!, forMode: NSRunLoopCommonModes)
     }
     
-    //MARK:-----Setter Getter-----
-    private lazy var overlayWindow: UIWindow? = {
-        debugPrint("property-overlayWindow")
-        let overlayWindow: UIWindow = UIWindow.init(frame: UIScreen.mainScreen().bounds)
-//        overlayWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
-        overlayWindow.backgroundColor = UIColor.clearColor()
-        overlayWindow.userInteractionEnabled = false
-        overlayWindow.windowLevel = UIWindowLevelStatusBar
-        overlayWindow.rootViewController = StatusBarNotificationViewController()
-        overlayWindow.rootViewController!.view.backgroundColor = UIColor.clearColor()
-        
-//        if !NSProcessInfo().isOperatingSystemAtLeastVersion(NSOperatingSystemVersion(majorVersion: 7, minorVersion: 0, patchVersion: 0)) {
-//            overlayWindow.rootViewController!.wantsFullScreenLayout = true
-//        }
-        
-//        self.updateWindowTransform()
-//        self.updateTopBarFrameWithStatusBarFrame(UIApplication.sharedApplication().statusBarFrame)
-        return overlayWindow
-    }()
+    func dismiss(timer: NSTimer) {
+        debugPrint("-dismiss")
+        self.dismissAnimated(true)
+    }
     
-    private lazy var topBar: StatusBarView? = {
-        debugPrint("property-topBar")
-        let topBar: StatusBarView = StatusBarView()
-        self.overlayWindow?.rootViewController?.view.addSubview(topBar)
+    func dismissAnimated(animated: Bool) {
+        debugPrint("-dismissAnimated")
+        self.dismissTimer?.invalidate()
+        self.dismissTimer = nil
         
-        return topBar
-    }()
-    
-    private lazy var progressView: UIView? = {
+        // check animation type
+        let animationsEnabled: Bool = (self.activeStyle!.animationType != .None)
+        var animatedChanged = false
+        if animated && animationsEnabled {
+            animatedChanged = true
+        }
+        let animation: dispatch_block_t =  {
+            if (self.activeStyle!.animationType == .Fade) {
+                self.topBar?.alpha = 0.0;
+            } else {
+                self.topBar?.transform = CGAffineTransformMakeTranslation(0, -self.topBar!.frame.size.height)
+            }
+        }
         
-        debugPrint("property-progressView")
-        let progressView = UIView()
-        return progressView
-    }()
+        let complete = { (finished: Bool) in
+            self.overlayWindow?.removeFromSuperview()
+            self.overlayWindow?.hidden = true
+            self.overlayWindow?.rootViewController = nil
+            self.overlayWindow = nil
+            self.progressView  = nil
+            self.topBar = nil
+            
+        }
+        if animatedChanged {
+            UIView.animateWithDuration(0.4, animations: animation, completion: complete)
+        } else {
+            animation()
+            complete(true)
+        }
+    }
+}
+
+extension StatusBarNotification {
     
-    //MARK:-----Rotation-----
+    //MARK:-----Bounce Animation-----
+    func animateInWithBounceAnimation() {
+        debugPrint("-animateInWithBounceAnimation")
+        //don't animate in, if topBar is already fully visible
+        if (self.topBar?.frame.origin.y >= 0) {
+            return
+        }
+        
+        // easing function (based on github.com/robb/RBBAnimation)
+        let RBBEasingFunctionEaseOutBounce = { (t: Float) -> Float in
+            if (t < 4.0/11.0) {
+                return pow(11.0 / 4.0, 2) * pow(t, 2)
+            }
+            
+            if (t < 8.0/11.0) {
+                return 3.0 / 4.0 + pow(11.0 / 4.0, 2) * pow(t - 6.0 / 11.0, 2)
+            }
+            
+            if (t < 10.0 / 11.0) {
+                return 15.0 / 16.0 + pow(11.0 / 4.0, 2) * pow(t - 9.0 / 11.0, 2)
+            }
+            
+            return 63.0 / 64.0 + pow(11.0 / 4.0, 2) * pow(t - 21.0 / 22.0, 2)
+        }
+        
+        // create values
+        let fromCenterY: Int = -20, toCenterY: Int = 0, animationSteps: Int = 100
+        var values = [NSValue]()
+        for t in 1...animationSteps {
+            
+            let easedTime: Float  = RBBEasingFunctionEaseOutBounce((Float(t)*1.0)/Float(animationSteps))
+            let easedValue: Float = Float(fromCenterY) + easedTime * (Float(toCenterY) - Float(fromCenterY))
+            
+            values.append(NSValue.init(CATransform3D: CATransform3DMakeTranslation(0, CGFloat.init(easedValue), 0)))
+        }
+        
+        // build animation
+        let animation: CAKeyframeAnimation = CAKeyframeAnimation(keyPath: "transform")
+        animation.timingFunctions = [CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)]
+        animation.duration = 0.66
+        animation.values   = values
+        animation.removedOnCompletion = false
+        animation.fillMode = kCAFillModeForwards
+        animation.delegate = self
+        
+        self.topBar?.layer.setValue(toCenterY, forKey: animation.keyPath!)
+        self.topBar?.layer.addAnimation(animation, forKey: "JDBounceAnimation")
+    }
+    
+    override public func animationDidStop(anim: CAAnimation, finished:Bool) {
+        debugPrint("-animationDidStop")
+        self.topBar?.transform = CGAffineTransformIdentity
+        self.topBar?.layer.removeAllAnimations()
+    }
+    
+    //MARK:-----Rotation Animation-----
     func updateWindowTransform(){
         debugPrint("-updateWindowTransform")
         let window: UIWindow? = UIApplication.sharedApplication().mainApplicationWindowIgnoringWindow(self.overlayWindow!)
@@ -496,7 +530,7 @@ public class StatusBarNotification: NSObject {
         
         let width  = max(rect.size.width, rect.size.height)
         let height = min(rect.size.width, rect.size.height)
-    
+        
         // on ios7 fix position, if statusBar has double height
         var yPos: CGFloat = 0
         if Double(UIDevice.currentDevice().systemVersion) >= 7.0 && height > 20.0 {
@@ -519,12 +553,12 @@ public class StatusBarNotification: NSObject {
         debugPrint("-willChangeStatusBarFrame")
         let newBarFrame: CGRect = (notification.userInfo![UIApplicationStatusBarFrameUserInfoKey]?.CGRectValue())!
         let duration: NSTimeInterval = UIApplication.sharedApplication().statusBarOrientationAnimationDuration
-    
+        
         // update window & statusbar
         let updateBlock = {
             self.updateWindowTransform()
             self.updateTopBarFrameWithStatusBarFrame(newBarFrame)
-//            self.progress = self.progress
+            //            self.progress = self.progress
         };
         
         UIView.animateWithDuration(duration, animations: {
@@ -646,7 +680,7 @@ extension StatusBarNotification {
      *  parameter. This instance can be modified to suit your needs. You need
      *  to return the modified style again.
      */
-    class func setDefaultStyle(prepareBlock: DBPrepareStyleBlock?) {
+    class func setDefaultStyle(prepareBlock: PrepareStyleBlock?) {
         
         debugPrint("+setDefaultStyle")
         assert(prepareBlock != nil, "No prepareBlock provided")
@@ -668,7 +702,7 @@ extension StatusBarNotification {
      *  @return Returns the given identifier, so it can
      *  be directly used as styleName parameter.
      */
-    class func addStyleNamed(identifier: String, prepareBlock:DBPrepareStyleBlock) -> String {
+    class func addStyleNamed(identifier: String, prepareBlock:PrepareStyleBlock) -> String {
         debugPrint("+addStyleNamed")
         return StatusBarNotification.shareInstance().addStyleNamed(identifier, prepareBlock:prepareBlock)
     }
